@@ -1,0 +1,277 @@
+/* Base Styles and Reset */
+@import url("https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap");
+
+:root {
+  --color-background: #000000;
+  --color-foreground: #f9fafb;
+  --color-primary: #3b82f6;
+  --color-primary-hover: #2563eb;
+  --color-muted: #9ca3af;
+  --color-success: #10b981;
+  --color-card: rgba(31, 41, 55, 0.4);
+  --color-divider: #374151;
+
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
+
+  --border-radius-md: 0.375rem;
+  --border-radius-lg: 0.5rem;
+  --border-radius-xl: 0.75rem;
+  --border-radius-full: 9999px;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: "Noto Sans KR", sans-serif;
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+  line-height: 1.5;
+  overflow: hidden;
+}
+
+/* Layout */
+.app-container {
+  display: flex;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+}
+
+.visualization-container {
+  position: relative;
+  flex: 1;
+  height: 100%;
+  background: linear-gradient(to bottom, #000000, #111827);
+}
+
+#three-canvas {
+  width: 100%;
+  height: 100%;
+}
+
+.info-panel {
+  width: 380px;
+  height: 100%;
+  overflow-y: auto;
+  background-color: rgba(17, 24, 39, 0.8);
+  backdrop-filter: blur(10px);
+  border-left: 1px solid rgba(75, 85, 99, 0.5);
+  padding: 1.5rem;
+}
+
+/* Control Bar */
+.control-bar {
+  position: absolute;
+  bottom: 1.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  background-color: rgba(17, 24, 39, 0.8);
+  backdrop-filter: blur(10px);
+  border-radius: var(--border-radius-xl);
+  padding: 1rem 1.5rem;
+  box-shadow: var(--shadow-lg);
+}
+
+.control-group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.play-button {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  background-color: var(--color-primary);
+  border: none;
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.play-button:hover {
+  background-color: var(--color-primary-hover);
+}
+
+.speed-control {
+  display: flex;
+  flex-direction: column;
+}
+
+.speed-label {
+  font-size: 0.75rem;
+  color: var(--color-muted);
+  margin-bottom: 0.25rem;
+}
+
+.slider-container {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.slider {
+  width: 8rem;
+  height: 0.375rem;
+  -webkit-appearance: none; /* Webkit 브라우저용 */
+  -moz-appearance: none;    /* Firefox용 */
+  appearance: none;         /* 표준 속성 */
+  background-color: rgba(55, 65, 81, 1);
+  border-radius: var(--border-radius-full);
+  outline: none;
+}
+
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 1rem;
+  height: 1rem;
+  border-radius: 50%;
+  background-color: var(--color-primary);
+  cursor: pointer;
+}
+
+.slider::-moz-range-thumb {
+  width: 1rem;
+  height: 1rem;
+  border-radius: 50%;
+  background-color: var(--color-primary);
+  cursor: pointer;
+  border: none;
+}
+
+.speed-value {
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.divider {
+  width: 1px;
+  height: 2rem;
+  background-color: var(--color-divider);
+}
+
+.reset-button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background-color: transparent;
+  border: 1px solid var(--color-divider);
+  color: var(--color-foreground);
+  font-size: 0.75rem;
+  padding: 0.375rem 0.75rem;
+  border-radius: var(--border-radius-full);
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.reset-button:hover {
+  background-color: rgba(55, 65, 81, 0.5);
+}
+
+/* Info Panel */
+.info-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.info-header h2 {
+  font-size: 1.125rem;
+  font-weight: 700;
+}
+
+.status-badge {
+  padding: 0.125rem 0.5rem;
+  border-radius: var(--border-radius-full);
+  background-color: rgba(16, 185, 129, 0.2);
+  color: var(--color-success);
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.tab-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+  background-color: rgba(31, 41, 55, 0.5);
+  padding: 0.25rem;
+  border-radius: var(--border-radius-lg);
+  margin-bottom: 1.5rem;
+}
+
+.tab-button {
+  padding: 0.5rem 1rem;
+  border-radius: var(--border-radius-md);
+  background-color: transparent;
+  border: none;
+  color: var(--color-muted);
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.tab-button.active {
+  background-color: var(--color-primary);
+  color: white;
+}
+
+.tab-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.tab-content.hidden {
+  display: none;
+}
+
+.info-card {
+  background-color: var(--color-card);
+  border-radius: var(--border-radius-xl);
+  padding: 1rem;
+  box-shadow: var(--shadow-md);
+  backdrop-filter: blur(8px);
+}
+
+.info-card h3 {
+  font-size: 0.875rem;
+  color: var(--color-muted);
+  margin-bottom: 0.75rem;
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.625rem;
+}
+
+.info-label {
+  font-size: 0.875rem;
+  color: var(--color-muted);
+}
+
+.info-value {
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-align: right;
+}
+
+/* Scrollbar Styling */
+.info-panel::-webkit-scrollbar {
+  width: 0.375rem;
+}
+
+.info-panel::-webkit-scrollbar-thumb {
+  background-color: rgba(75, 85, 99, 0.5);
+  border-radius: var(--border-radius-full);
+}

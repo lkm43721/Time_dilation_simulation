@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GPS 위성 시뮬레이션</title>
+  <link rel="stylesheet" href="./src/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="dark-mode">
+  <main class="app-container">
+    <!-- Main 3D Visualization Area -->
+    <div class="visualization-container">
+      <div id="three-canvas"></div>
+      
+
+        
+      </header>
+      
+      <!-- Bottom Controls -->
+      <div class="control-bar">
+        <div class="control-group">
+          <button class="play-button">
+            <i class="fa-solid fa-play"></i>
+          </button>
+          
+          <div class="speed-control">
+            <span class="speed-label">시뮬레이션 속도</span>
+            <div class="slider-container">
+              <input type="range" min="1" max="100" value="50" class="slider" id="speed-slider">
+              <span class="speed-value">1000x</span>
+            </div>
+          </div>
+        </div>
+        
+        <div class="divider"></div>
+        
+        <button class="reset-button">
+          <i class="fa-solid fa-rotate"></i>
+          재설정
+        </button>
+      </div>
+    </div>
+    
+    <!-- Right Information Panel -->
+    <div class="info-panel">
+      <div class="info-header">
+        <h2>시뮬레이션 정보</h2>
+        <span class="status-badge">실시간</span>
+      </div>
+      
+      <!-- Object Selection Tabs -->
+      <div class="tab-container">
+        <button class="tab-button active" data-tab="earth">지구</button>
+        <button class="tab-button" data-tab="satellites">GPS 위성</button>
+      </div>
+      
+      <!-- Earth Information Panels -->
+      <div class="tab-content" id="earth-content">
+        <div class="info-card">
+          <h3>지구 정보</h3>
+          <div class="info-grid">
+            <span class="info-label">반지름</span>
+            <span class="info-value">6,371 km</span>
+            
+            <span class="info-label">자전 주기</span>
+            <span class="info-value">23시간 56분</span>
+            
+            <span class="info-label">공전 주기</span>
+            <span class="info-value">365.25일</span>
+            
+            <span class="info-label">평균 속도</span>
+            <span class="info-value">29.78 km/s</span>
+          </div>
+        </div>
+        
+        <!-- <div class="info-card">
+          <h3>지구 물리적 특성</h3>
+          <div class="info-grid">
+            <span class="info-label">질량</span>
+            <span class="info-value">5.97 × 10^24 kg</span>
+            
+            <span class="info-label">표면 중력</span>
+            <span class="info-value">9.8 m/s²</span>
+            
+            <span class="info-label">탈출 속도</span>
+            <span class="info-value">11.2 km/s</span>
+            
+            <span class="info-label">평균 밀도</span>
+            <span class="info-value">5.51 g/cm³</span>
+          </div>
+        </div> -->
+        
+        <!-- <div class="info-card">
+          <h3>지구 대기 정보</h3>
+          <div class="info-grid">
+            <span class="info-label">대기 구성</span>
+            <span class="info-value">N₂, O₂, Ar, CO₂</span>
+            
+            <span class="info-label">대기압</span>
+            <span class="info-value">101.3 kPa</span>
+            
+            <span class="info-label">평균 온도</span>
+            <span class="info-value">15°C</span>
+            
+            <span class="info-label">오존층 고도</span>
+            <span class="info-value">15-35 km</span>
+          </div>
+        </div> -->
+      </div>
+      
+      <!-- Satellite Information Panels -->
+      <div class="tab-content hidden" id="satellites-content">
+        <div class="info-card">
+          <h3>GPS 위성 정보</h3>
+          <div class="info-grid">
+            <span class="info-label">위성 수</span>
+            <span class="info-value">24개</span>
+            
+            <span class="info-label">고도</span>
+            <span class="info-value">20,200 km</span>
+            
+            <span class="info-label">궤도 주기</span>
+            <span class="info-value">11시간 58분</span>
+            
+            <span class="info-label">궤도 기울기</span>
+            <span class="info-value">55°</span>
+          </div>
+        </div>
+      
+      </div>
+    
+    </div>
+  </main>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="./src/script.js"></script>
+</body>
+</html>
+
