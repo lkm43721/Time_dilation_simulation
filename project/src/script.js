@@ -61,4 +61,5 @@ document.addEventListener("DOMContentLoaded", () => {
         card.style.boxShadow = "var(--shadow-md)"
       })
     })
+    
   })
