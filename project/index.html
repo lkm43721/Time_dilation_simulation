@@ -13,9 +13,16 @@
     <div class="visualization-container">
       <div id="three-canvas"></div>
       
-
-        
-      </header>
+      <!-- Timer Display -->
+      <div class="timer-display">
+        <div class="timer-label">시뮬레이션 시간</div>
+        <div class="timer-value">
+          <span id="timer-days">00</span>일
+          <span id="timer-hours">00</span>시
+          <span id="timer-minutes">00</span>분
+          <span id="timer-seconds">00</span>초
+        </div>
+      </div>
       
       <!-- Bottom Controls -->
       <div class="control-bar">
@@ -35,7 +42,7 @@
         
         <div class="divider"></div>
         
-        <button class="reset-button">
+        <button class="reset-button" id="reset-button">
           <i class="fa-solid fa-rotate"></i>
           재설정
         </button>
@@ -73,40 +80,6 @@
             <span class="info-value">29.78 km/s</span>
           </div>
         </div>
-        
-        <!-- <div class="info-card">
-          <h3>지구 물리적 특성</h3>
-          <div class="info-grid">
-            <span class="info-label">질량</span>
-            <span class="info-value">5.97 × 10^24 kg</span>
-            
-            <span class="info-label">표면 중력</span>
-            <span class="info-value">9.8 m/s²</span>
-            
-            <span class="info-label">탈출 속도</span>
-            <span class="info-value">11.2 km/s</span>
-            
-            <span class="info-label">평균 밀도</span>
-            <span class="info-value">5.51 g/cm³</span>
-          </div>
-        </div> -->
-        
-        <!-- <div class="info-card">
-          <h3>지구 대기 정보</h3>
-          <div class="info-grid">
-            <span class="info-label">대기 구성</span>
-            <span class="info-value">N₂, O₂, Ar, CO₂</span>
-            
-            <span class="info-label">대기압</span>
-            <span class="info-value">101.3 kPa</span>
-            
-            <span class="info-label">평균 온도</span>
-            <span class="info-value">15°C</span>
-            
-            <span class="info-label">오존층 고도</span>
-            <span class="info-value">15-35 km</span>
-          </div>
-        </div> -->
       </div>
       
       <!-- Satellite Information Panels -->
@@ -127,9 +100,7 @@
             <span class="info-value">55°</span>
           </div>
         </div>
-      
       </div>
-    
     </div>
   </main>
 
@@ -138,4 +109,3 @@
   <script src="./src/three.js" type="module"></script>
 </body>
 </html>
-

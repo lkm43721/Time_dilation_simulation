@@ -275,3 +275,39 @@ body {
   background-color: rgba(75, 85, 99, 0.5);
   border-radius: var(--border-radius-full);
 }
+
+/* 타이머 관련 CSS 스타일 - style.css 파일에 추가 */
+.timer-display {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  background-color: rgba(0, 0, 0, 0.7);
+  padding: 10px 15px;
+  border-radius: 8px;
+  color: white;
+  font-family: 'Courier New', monospace;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+  z-index: 10;
+}
+
+.timer-label {
+  font-size: 0.8rem;
+  opacity: 0.8;
+  margin-bottom: 2px;
+}
+
+.timer-value {
+  font-size: 1.1rem;
+  font-weight: bold;
+}
+
+#timer-days, #timer-hours, #timer-minutes, #timer-seconds {
+  display: inline-block;
+  min-width: 1.8rem;
+  text-align: center;
+}
+
+/* 슬라이더 값 표시를 더 넓게 수정 */
+.speed-value {
+  min-width: 60px;
+}

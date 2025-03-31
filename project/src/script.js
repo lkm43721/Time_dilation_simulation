@@ -22,33 +22,9 @@ document.addEventListener("DOMContentLoaded", () => {
       })
     })
   
-    // 재생/일시정지 버튼 토글
+    // 재생/일시정지 버튼 토글 (three.js에서 주요 로직 처리)
     const playButton = document.querySelector(".play-button")
-    let isPlaying = true
-  
-    playButton.addEventListener("click", () => {
-      isPlaying = !isPlaying
-      const icon = playButton.querySelector("i")
-  
-      if (isPlaying) {
-        icon.classList.remove("fa-pause")
-        icon.classList.add("fa-play")
-      } else {
-        icon.classList.remove("fa-play")
-        icon.classList.add("fa-pause")
-      }
-    })
-  
-    // 속도 슬라이더 기능
-    const speedSlider = document.getElementById("speed-slider")
-    const speedValue = document.querySelector(".speed-value")
-  
-    speedSlider.addEventListener("input", () => {
-      const value = speedSlider.value
-      const speedMultiplier = Math.floor(value * 20)
-      speedValue.textContent = `${speedMultiplier}x`
-    })
-  
+    
     // 정보 카드에 호버 효과 추가
     const infoCards = document.querySelectorAll(".info-card")
   
@@ -61,5 +37,4 @@ document.addEventListener("DOMContentLoaded", () => {
         card.style.boxShadow = "var(--shadow-md)"
       })
     })
-    
-  })
+})

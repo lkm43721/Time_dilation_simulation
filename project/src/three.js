@@ -1,9 +1,9 @@
 import * as THREE from 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.module.js';
 
 // 타원체 지구 크기 설정
-const radiusX = 5; 
-const radiusY = 5; 
-const radiusZ = 5; 
+const radiusX = 1; 
+const radiusY = 0.9965; 
+const radiusZ = 1; 
 
 document.addEventListener("DOMContentLoaded", () => {
   const canvasContainer = document.getElementById('three-canvas');
@@ -17,8 +17,7 @@ document.addEventListener("DOMContentLoaded", () => {
   canvasContainer.appendChild(renderer.domElement);
   
   // 카메라 위치 설정 및 초기 방향
-  camera.position.z = -10;
-  camera.position.x = -10 * Math.sqrt(3);
+  camera.position.z = 7;
   camera.lookAt(0, 0, 0);
 
   // 지구 생성
@@ -40,15 +39,15 @@ document.addEventListener("DOMContentLoaded", () => {
   // ------------------------------
   // 6개의 GPS 위성 궤도 (라인) 추가
   // ------------------------------
-  const orbitScale = 10;         // 궤도 반경 확장
+  const orbitScale = 3.167;         // 궤도 반경 확장
   const numPoints = 200;         // 궤도 점 개수
   const tMin = -Math.PI;
   const tMax = Math.PI;
   const dt = (tMax - tMin) / numPoints;
 
   // 35도의 sin, cos 값 미리 계산
-  const sin35 = Math.sin(THREE.Math.degToRad(35));
-  const cos35 = Math.cos(THREE.Math.degToRad(35));
+  const sin35 = Math.sin(THREE.MathUtils.degToRad(35));
+  const cos35 = Math.cos(THREE.MathUtils.degToRad(35));
   const sqrt3_2 = Math.sqrt(3) / 2;
 
   // 위성 궤도 생성 함수 (라인 그리기용)
@@ -125,7 +124,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // 인공위성 24개 생성 (각 궤도마다 4개씩, 위성 간 각도 90도)
   // ------------------------------
   const satellites = [];  // 각 위성: { orbitFn, offset, mesh }
-  const satelliteGeometry = new THREE.SphereGeometry(0.2, 16, 16);
+  const satelliteGeometry = new THREE.SphereGeometry(0.1, 16, 16);
   const offsets = [0, Math.PI/2, Math.PI, 3*Math.PI/2];
 
   orbitDefinitions.forEach(def => {
@@ -142,30 +141,75 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // ------------------------------
+  // 시간 및 속도 관련 상수 정의
+  // ------------------------------
+  // 지구 자전 주기: 23시간 56분 = 86160초
+  const EARTH_ROTATION_PERIOD = 23 * 60 * 60 + 56 * 60; // 초 단위
+  // 인공위성 궤도 주기: 지구 자전 주기의 1/2
+  const SATELLITE_ORBIT_PERIOD = EARTH_ROTATION_PERIOD / 2; // 초 단위
+  
+  // 속도 배율 및 시간 관련 변수
+  let speedMultiplier = 1000; // 초기 속도 배율 (1000x)
+  const MIN_SPEED = 1;        // 최소 속도
+  const MAX_SPEED = 20000;    // 최대 속도 20000x로 설정
+  let simulationSeconds = 0; // 시뮬레이션 누적 시간 (초)
+  let lastUpdateTime = Date.now(); // 마지막 업데이트 시간
+  
+  // 타이머 요소
+  const timerDays = document.getElementById('timer-days');
+  const timerHours = document.getElementById('timer-hours');
+  const timerMinutes = document.getElementById('timer-minutes');
+  const timerSeconds = document.getElementById('timer-seconds');
+  
+  // 타이머 업데이트 함수
+  function updateTimer() {
+    const days = Math.floor(simulationSeconds / (24 * 60 * 60));
+    const hours = Math.floor((simulationSeconds % (24 * 60 * 60)) / (60 * 60));
+    const minutes = Math.floor((simulationSeconds % (60 * 60)) / 60);
+    const seconds = Math.floor(simulationSeconds % 60);
+    
+    timerDays.textContent = days.toString().padStart(2, '0');
+    timerHours.textContent = hours.toString().padStart(2, '0');
+    timerMinutes.textContent = minutes.toString().padStart(2, '0');
+    timerSeconds.textContent = seconds.toString().padStart(2, '0');
+  }
+
+  // ------------------------------
   // 애니메이션
   // ------------------------------
-  let rotationSpeed = 0.01;      // 지구 자전 속도
-  let satelliteSpeed = 0.1;     // 위성 궤도 진행 속도
-  let t = 0;                   // 전역 시간 변수
+  let isPlaying = true;
 
   function animate() {
     requestAnimationFrame(animate);
-
-    // 지구 회전 업데이트
-    earth.rotation.y += rotationSpeed;
-
-    // 전역 시간 업데이트 (위성 진행)
-    t += satelliteSpeed;
-
-    // 각 위성의 위치 업데이트
-    satellites.forEach(sat => {
-      const pos = sat.orbitFn(t + sat.offset);
-      sat.mesh.position.set(
-        pos.x * orbitScale,
-        pos.y * orbitScale,
-        pos.z * orbitScale
-      );
-    });
+    
+    if (isPlaying) {
+      // 실제 경과 시간 계산
+      const currentTime = Date.now();
+      const deltaTime = (currentTime - lastUpdateTime) / 1000; // 초 단위
+      lastUpdateTime = currentTime;
+      
+      // 시뮬레이션 시간 업데이트
+      simulationSeconds += deltaTime * speedMultiplier;
+      updateTimer();
+      
+      // 지구 회전 각도 계산 (0 ~ 2π)
+      // 정확히 EARTH_ROTATION_PERIOD 초에 한 바퀴(2π)가 되도록 계산
+      const earthRotationAngle = (simulationSeconds % EARTH_ROTATION_PERIOD) * (2 * Math.PI / EARTH_ROTATION_PERIOD);
+      earth.rotation.y = earthRotationAngle;
+      
+      // 위성 위치 계산 - 정확히 SATELLITE_ORBIT_PERIOD 초에 한 바퀴가 되도록 계산
+      const satelliteOrbitAngle = (simulationSeconds % SATELLITE_ORBIT_PERIOD) * (2 * Math.PI / SATELLITE_ORBIT_PERIOD);
+      
+      // 각 위성의 위치 업데이트
+      satellites.forEach(sat => {
+        const pos = sat.orbitFn(satelliteOrbitAngle + sat.offset);
+        sat.mesh.position.set(
+          pos.x * orbitScale,
+          pos.y * orbitScale,
+          pos.z * orbitScale
+        );
+      });
+    }
 
     renderer.render(scene, camera);
   }
@@ -177,7 +221,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const playButton = document.querySelector(".play-button");
   const speedSlider = document.getElementById("speed-slider");
   const speedValue = document.querySelector(".speed-value");
-  let isPlaying = true;
  
   playButton.addEventListener("click", () => {
     isPlaying = !isPlaying;
@@ -185,19 +228,64 @@ document.addEventListener("DOMContentLoaded", () => {
     if (isPlaying) {
       icon.classList.remove("fa-pause");
       icon.classList.add("fa-play");
+      lastUpdateTime = Date.now(); // 재생 시 시간 재설정
     } else {
       icon.classList.remove("fa-play");
       icon.classList.add("fa-pause");
     }
   });
  
-  // 슬라이더 값에 따라 지구의 회전속도와 위성의 속도가 함께 조절되도록 설정
+  // 슬라이더 값 매핑 함수 (1~100 -> 1~20000)
+  function mapSliderToSpeed(sliderValue) {
+    // 로그 스케일 적용 (1~100 -> 1~20000)
+    const minLog = Math.log10(MIN_SPEED);
+    const maxLog = Math.log10(MAX_SPEED);
+    const scale = (maxLog - minLog) / 99;
+    
+    // sliderValue(1~100) -> log 스케일(1~20000)
+    return Math.round(Math.pow(10, minLog + (sliderValue - 1) * scale));
+  }
+  
+  // 속도를 슬라이더 값으로 변환하는 역함수
+  function mapSpeedToSlider(speed) {
+    const minLog = Math.log10(MIN_SPEED);
+    const maxLog = Math.log10(MAX_SPEED);
+    const scale = (maxLog - minLog) / 99;
+    
+    // speed(1~20000) -> sliderValue(1~100)
+    return Math.round(((Math.log10(speed) - minLog) / scale) + 1);
+  }
+  
+  // 슬라이더 초기값 설정 (1000x에 해당하는 값)
+  const initialSliderValue = mapSpeedToSlider(1000);
+  speedSlider.value = initialSliderValue;
+  speedValue.textContent = `${speedMultiplier}x`;
+ 
+  // 슬라이더 값에 따라 속도 배율 조절
   speedSlider.addEventListener("input", () => {
-    const value = parseFloat(speedSlider.value);
-    rotationSpeed = value * 0.001;
-    // 위성 속도는 지구 회전속도의 2배 정도로 설정 (필요에 따라 조정 가능)
-    satelliteSpeed = value * 0.002;
-    speedValue.textContent = `${Math.floor(value * 20)}x`;
+    speedMultiplier = mapSliderToSpeed(parseFloat(speedSlider.value));
+    speedValue.textContent = `${speedMultiplier}x`;
+  });
+  
+  // 재설정 버튼
+  const resetButton = document.getElementById("reset-button");
+  resetButton.addEventListener("click", () => {
+    // 시뮬레이션 시간 초기화
+    simulationSeconds = 0;
+    updateTimer();
+    
+    // 지구 회전 초기화
+    earth.rotation.set(0, 0, 0);
+    
+    // 위성 위치 초기화
+    satellites.forEach(sat => {
+      const pos = sat.orbitFn(sat.offset);
+      sat.mesh.position.set(
+        pos.x * orbitScale,
+        pos.y * orbitScale,
+        pos.z * orbitScale
+      );
+    });
   });
 
   // ------------------------------
