@@ -21,9 +21,6 @@ document.addEventListener("DOMContentLoaded", () => {
         document.getElementById(`${tabId}-content`).classList.remove("hidden")
       })
     })
-  
-    // 재생/일시정지 버튼 토글 (three.js에서 주요 로직 처리)
-    const playButton = document.querySelector(".play-button")
     
     // 정보 카드에 호버 효과 추가
     const infoCards = document.querySelectorAll(".info-card")
