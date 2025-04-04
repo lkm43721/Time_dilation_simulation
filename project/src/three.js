@@ -16,16 +16,16 @@ document.addEventListener("DOMContentLoaded", () => {
   renderer.setSize(canvasContainer.clientWidth, canvasContainer.clientHeight);
   canvasContainer.appendChild(renderer.domElement);
 
-  // 카메라 위치 설정 및 초기 방향
+  // 카메라 위치 설정
   camera.position.z = 7;
   camera.lookAt(0, 0, 0);
 
   // 지구 생성
-  const geometry = new THREE.SphereGeometry(1, 32, 32); // 기본 반지름 1
+  const geometry = new THREE.SphereGeometry(1, 32, 32);
   const texture = new THREE.TextureLoader().load('earth_texture.png');
   const material = new THREE.MeshPhongMaterial({ map: texture });
   const earth = new THREE.Mesh(geometry, material);
-  earth.scale.set(radiusX, radiusY, radiusZ); // 타원체 스케일 적용
+  earth.scale.set(radiusX, radiusY, radiusZ);
   scene.add(earth);
 
   // 조명 추가
@@ -35,21 +35,17 @@ document.addEventListener("DOMContentLoaded", () => {
   directionalLight.position.set(5, 3, 5);
   scene.add(directionalLight);
 
-  // ------------------------------
-  // 6개의 GPS 위성 궤도 (라인) 추가
-  // ------------------------------
-  const orbitScale = 3.167; // 궤도 반경 확장
-  const numPoints = 200; // 궤도 점 개수
+  // GPS 위성 궤도 생성
+  const orbitScale = 3.167;
+  const numPoints = 200;
   const tMin = -Math.PI;
   const tMax = Math.PI;
   const dt = (tMax - tMin) / numPoints;
 
-  // 35도의 sin, cos 값 미리 계산
   const sin35 = Math.sin(THREE.MathUtils.degToRad(35));
   const cos35 = Math.cos(THREE.MathUtils.degToRad(35));
   const sqrt3_2 = Math.sqrt(3) / 2;
 
-  // 위성 궤도 생성 함수 (라인 그리기용)
   function createOrbit(getPoint, colorHex) {
     const points = [];
     for (let t = tMin; t <= tMax; t += dt) {
@@ -62,98 +58,40 @@ document.addEventListener("DOMContentLoaded", () => {
     scene.add(orbitLine);
   }
 
-  // 궤도 함수 및 색상 정의 (6개 궤도)
   const orbitDefinitions = [
-    {
-      fn: t => ({
-        x: sin35 * Math.cos(t),
-        y: cos35 * Math.cos(t),
-        z: Math.sin(t)
-      }),
-      color: 0xff0000 // 빨강
-    },
-    {
-      fn: t => ({
-        x: 0.5 * sin35 * Math.cos(t) + (sqrt3_2) * Math.sin(t),
-        y: cos35 * Math.cos(t),
-        z: -sqrt3_2 * sin35 * Math.cos(t) + 0.5 * Math.sin(t)
-      }),
-      color: 0x00ff00 // 초록
-    },
-    {
-      fn: t => ({
-        x: 0.5 * sin35 * Math.cos(t) - (sqrt3_2) * Math.sin(t),
-        y: cos35 * Math.cos(t),
-        z: sqrt3_2 * sin35 * Math.cos(t) + 0.5 * Math.sin(t)
-      }),
-      color: 0x0000ff // 파랑
-    },
-    {
-      fn: t => ({
-        x: sin35 * Math.cos(t),
-        y: -cos35 * Math.cos(t),
-        z: Math.sin(t)
-      }),
-      color: 0xffff00 // 노랑
-    },
-    {
-      fn: t => ({
-        x: 0.5 * sin35 * Math.cos(t) + (sqrt3_2) * Math.sin(t),
-        y: -cos35 * Math.cos(t),
-        z: -sqrt3_2 * sin35 * Math.cos(t) + 0.5 * Math.sin(t)
-      }),
-      color: 0xff00ff // 분홍
-    },
-    {
-      fn: t => ({
-        x: 0.5 * sin35 * Math.cos(t) - (sqrt3_2) * Math.sin(t),
-        y: -cos35 * Math.cos(t),
-        z: sqrt3_2 * sin35 * Math.cos(t) + 0.5 * Math.sin(t)
-      }),
-      color: 0x00ffff // 하늘색
-    }
+    { fn: t => ({ x: sin35 * Math.cos(t), y: cos35 * Math.cos(t), z: Math.sin(t) }), color: 0xff0000 },
+    { fn: t => ({ x: 0.5 * sin35 * Math.cos(t) + sqrt3_2 * Math.sin(t), y: cos35 * Math.cos(t), z: -sqrt3_2 * sin35 * Math.cos(t) + 0.5 * Math.sin(t) }), color: 0x00ff00 },
+    { fn: t => ({ x: 0.5 * sin35 * Math.cos(t) - sqrt3_2 * Math.sin(t), y: cos35 * Math.cos(t), z: sqrt3_2 * sin35 * Math.cos(t) + 0.5 * Math.sin(t) }), color: 0x0000ff },
+    { fn: t => ({ x: sin35 * Math.cos(t), y: -cos35 * Math.cos(t), z: Math.sin(t) }), color: 0xffff00 },
+    { fn: t => ({ x: 0.5 * sin35 * Math.cos(t) + sqrt3_2 * Math.sin(t), y: -cos35 * Math.cos(t), z: -sqrt3_2 * sin35 * Math.cos(t) + 0.5 * Math.sin(t) }), color: 0xff00ff },
+    { fn: t => ({ x: 0.5 * sin35 * Math.cos(t) - sqrt3_2 * Math.sin(t), y: -cos35 * Math.cos(t), z: sqrt3_2 * sin35 * Math.cos(t) + 0.5 * Math.sin(t) }), color: 0x00ffff }
   ];
 
-  // 각 궤도의 라인 생성
-  orbitDefinitions.forEach(def => {
-    createOrbit(def.fn, def.color);
-  });
+  orbitDefinitions.forEach(def => createOrbit(def.fn, def.color));
 
-  // ------------------------------
-  // 인공위성 24개 생성 (각 궤도마다 4개씩, 위성 간 각도 90도)
-  // ------------------------------
-  const satellites = []; // 각 위성: { id, orbitFn, offset, mesh, originalColor }
+  // 인공위성 생성
+  const satellites = [];
   const satelliteGeometry = new THREE.SphereGeometry(0.1, 16, 16);
   const offsets = [0, Math.PI / 2, Math.PI, 3 * Math.PI / 2];
-  let satelliteId = 1; // 위성 ID 시작 번호
+  let satelliteId = 1;
 
   orbitDefinitions.forEach(def => {
     offsets.forEach(offset => {
       const material = new THREE.MeshPhongMaterial({ color: def.color });
       const mesh = new THREE.Mesh(satelliteGeometry, material);
-      mesh.userData = { id: satelliteId }; // 고유 ID 부여
+      mesh.userData = { id: satelliteId };
       scene.add(mesh);
-      satellites.push({
-        id: satelliteId,
-        orbitFn: def.fn,
-        offset: offset,
-        mesh: mesh,
-        originalColor: def.color // 원래 색상 저장
-      });
+      satellites.push({ id: satelliteId, orbitFn: def.fn, offset, mesh, originalColor: def.color });
       satelliteId++;
     });
   });
 
-  // ------------------------------
-  // Raycaster 및 마우스 벡터 설정
-  // ------------------------------
+  // Raycaster 및 상호작용 코드
   const raycaster = new THREE.Raycaster();
   const mouse = new THREE.Vector2();
-  let hoveredSatellite = null; // 현재 호버된 위성 추적
+  let hoveredSatellite = null;
 
-  // 클릭 이벤트 처리
-  canvasContainer.addEventListener('click', onCanvasClick, false);
-
+  canvasContainer.addEventListener('click', onCanvasClick);
   function onCanvasClick(event) {
     const rect = canvasContainer.getBoundingClientRect();
     mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
@@ -161,17 +99,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
     raycaster.setFromCamera(mouse, camera);
     const intersects = raycaster.intersectObjects(satellites.map(sat => sat.mesh));
-
     if (intersects.length > 0) {
       const selectedSatellite = intersects[0].object;
-      const satelliteId = selectedSatellite.userData.id;
-      showSatelliteInfo(satelliteId);
+      showSatelliteInfo(selectedSatellite.userData.id);
     }
   }
 
-  // 마우스 이동 이벤트 처리 (호버)
-  canvasContainer.addEventListener('mousemove', onMouseMove, false);
-
+  canvasContainer.addEventListener('mousemove', onMouseMove);
   function onMouseMove(event) {
     const rect = canvasContainer.getBoundingClientRect();
     mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
@@ -180,53 +114,40 @@ document.addEventListener("DOMContentLoaded", () => {
     raycaster.setFromCamera(mouse, camera);
     const intersects = raycaster.intersectObjects(satellites.map(sat => sat.mesh));
 
-    // 이전에 호버된 위성이 있으면 원래 색상으로 복원
     if (hoveredSatellite && (!intersects.length || intersects[0].object !== hoveredSatellite)) {
       const sat = satellites.find(s => s.mesh === hoveredSatellite);
       sat.mesh.material.color.setHex(sat.originalColor);
       hoveredSatellite = null;
     }
 
-    // 새로운 위성에 호버된 경우 색상 변경
     if (intersects.length > 0) {
       const newHoveredSatellite = intersects[0].object;
       if (newHoveredSatellite !== hoveredSatellite) {
         hoveredSatellite = newHoveredSatellite;
-        hoveredSatellite.material.color.setHex(0xffffff); // 흰색으로 변경
+        hoveredSatellite.material.color.setHex(0xffffff);
       }
     }
   }
 
-  // 위성 정보 표시 함수
   function showSatelliteInfo(id) {
     const satelliteIdElement = document.getElementById('satellite-id');
-    if (satelliteIdElement) {
-      satelliteIdElement.textContent = id;
-    } else {
-      console.warn('satellite-id 요소를 찾을 수 없습니다.');
-    }
+    if (satelliteIdElement) satelliteIdElement.textContent = id;
   }
 
-  // ------------------------------
-  // 시간 및 속도 관련 상수 정의
-  // ------------------------------
-  const EARTH_ROTATION_PERIOD = 23 * 60 * 60 + 56 * 60; // 지구 자전 주기 (초)
-  const SATELLITE_ORBIT_PERIOD = EARTH_ROTATION_PERIOD / 2; // 인공위성 궤도 주기 (초)
+  // 시간 및 속도 설정
+  const EARTH_ROTATION_PERIOD = 23 * 60 * 60 + 56 * 60;
+  const SATELLITE_ORBIT_PERIOD = EARTH_ROTATION_PERIOD / 2;
+  let speedMultiplier = 1000;
+  const MIN_SPEED = 1;
+  const MAX_SPEED = 20000;
+  let simulationSeconds = 0;
+  let lastUpdateTime = Date.now();
 
-  // 속도 배율 및 시간 관련 변수
-  let speedMultiplier = 1000; // 초기 속도 배율 (1000x)
-  const MIN_SPEED = 1; // 최소 속도
-  const MAX_SPEED = 20000; // 최대 속도
-  let simulationSeconds = 0; // 시뮬레이션 누적 시간 (초)
-  let lastUpdateTime = Date.now(); // 마지막 업데이트 시간
-
-  // 타이머 요소
   const timerDays = document.getElementById('timer-days');
   const timerHours = document.getElementById('timer-hours');
   const timerMinutes = document.getElementById('timer-minutes');
   const timerSeconds = document.getElementById('timer-seconds');
 
-  // 타이머 업데이트 함수
   function updateTimer() {
     const days = Math.floor(simulationSeconds / (24 * 60 * 60));
     const hours = Math.floor((simulationSeconds % (24 * 60 * 60)) / (60 * 60));
@@ -239,62 +160,74 @@ document.addEventListener("DOMContentLoaded", () => {
     timerSeconds.textContent = seconds.toString().padStart(2, '0');
   }
 
-  // ------------------------------
-  // 애니메이션
-  // ------------------------------
-  let isPlaying = true;
+  // 지구 표면 점 생성
+  let surfacePoint = null;
 
+  function createSurfacePoint(lat, lon) {
+    if (surfacePoint) scene.remove(surfacePoint);
+
+    const geometry = new THREE.SphereGeometry(0.05, 16, 16);
+    const material = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+    surfacePoint = new THREE.Mesh(geometry, material);
+
+    const phi = THREE.MathUtils.degToRad(90 - lat);
+    const theta = THREE.MathUtils.degToRad(lon + 90);
+    const radius = 1;
+
+    const x = radius * Math.sin(phi) * Math.cos(theta);
+    const y = radius * Math.cos(phi);
+    const z = radius * Math.sin(phi) * Math.sin(theta);
+
+    surfacePoint.position.set(x, y, z);
+    surfacePoint.scale.set(radiusX, radiusY, radiusZ);
+    surfacePoint.userData = { lat, lon };
+    scene.add(surfacePoint);
+  }
+
+  createSurfacePoint(0, 0);
+
+  // 애니메이션 함수 (플레이/정지 버튼 제거로 항상 실행됨)
   function animate() {
     requestAnimationFrame(animate);
 
-    if (isPlaying) {
-      const currentTime = Date.now();
-      const deltaTime = (currentTime - lastUpdateTime) / 1000; // 초 단위
-      lastUpdateTime = currentTime;
+    const currentTime = Date.now();
+    const deltaTime = (currentTime - lastUpdateTime) / 1000;
+    lastUpdateTime = currentTime;
 
-      simulationSeconds += deltaTime * speedMultiplier;
-      updateTimer();
+    simulationSeconds += deltaTime * speedMultiplier;
+    updateTimer();
 
-      const earthRotationAngle = (simulationSeconds % EARTH_ROTATION_PERIOD) * (2 * Math.PI / EARTH_ROTATION_PERIOD);
-      earth.rotation.y = earthRotationAngle;
+    const earthRotationAngle = (simulationSeconds % EARTH_ROTATION_PERIOD) * (2 * Math.PI / EARTH_ROTATION_PERIOD);
+    earth.rotation.y = earthRotationAngle;
 
-      const satelliteOrbitAngle = (simulationSeconds % SATELLITE_ORBIT_PERIOD) * (2 * Math.PI / SATELLITE_ORBIT_PERIOD);
-
-      satellites.forEach(sat => {
-        const pos = sat.orbitFn(satelliteOrbitAngle + sat.offset);
-        sat.mesh.position.set(
-          pos.x * orbitScale,
-          pos.y * orbitScale,
-          pos.z * orbitScale
-        );
-      });
+    // 점 위치 업데이트 (자전과 반대 방향)
+    if (surfacePoint) {
+      const { lat, lon } = surfacePoint.userData;
+      const phi = THREE.MathUtils.degToRad(90 - lat);
+      const theta = THREE.MathUtils.degToRad(lon + 90) - earthRotationAngle;
+      const x = radiusX * Math.sin(phi) * Math.cos(theta);
+      const y = radiusY * Math.cos(phi);
+      const z = radiusZ * Math.sin(phi) * Math.sin(theta);
+      surfacePoint.position.set(x, y, z);
     }
+
+    const satelliteOrbitAngle = (simulationSeconds % SATELLITE_ORBIT_PERIOD) * (2 * Math.PI / SATELLITE_ORBIT_PERIOD);
+    satellites.forEach(sat => {
+      const pos = sat.orbitFn(satelliteOrbitAngle + sat.offset);
+      sat.mesh.position.set(pos.x * orbitScale, pos.y * orbitScale, pos.z * orbitScale);
+    });
 
     renderer.render(scene, camera);
   }
   animate();
 
-  // ------------------------------
-  // 상호작용 코드 (플레이/슬라이더)
-  // ------------------------------
-  const playButton = document.querySelector(".play-button");
+  // 슬라이더 관련 코드
   const speedSlider = document.getElementById("speed-slider");
   const speedValue = document.querySelector(".speed-value");
 
-  playButton.addEventListener("click", () => {
-    isPlaying = !isPlaying;
-    const icon = playButton.querySelector("i");
-    if (isPlaying) {
-      icon.classList.remove("fa-play");
-      icon.classList.add("fa-pause");
-      lastUpdateTime = Date.now();
-    } else {
-      icon.classList.remove("fa-pause");
-      icon.classList.add("fa-play");
-    }
-  });
-
+  // 수정된 슬라이더 매핑 함수: 슬라이더 값이 0이면 0x 속도로 적용 (정지 기능 제거)
   function mapSliderToSpeed(sliderValue) {
+    if (sliderValue == 0) return 0;
     const minLog = Math.log10(MIN_SPEED);
     const maxLog = Math.log10(MAX_SPEED);
     const scale = (maxLog - minLog) / 99;
@@ -302,14 +235,14 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function mapSpeedToSlider(speed) {
+    if (speed === 0) return 0;
     const minLog = Math.log10(MIN_SPEED);
     const maxLog = Math.log10(MAX_SPEED);
     const scale = (maxLog - minLog) / 99;
     return Math.round(((Math.log10(speed) - minLog) / scale) + 1);
   }
 
-  const initialSliderValue = mapSpeedToSlider(1000);
-  speedSlider.value = initialSliderValue;
+  speedSlider.value = mapSpeedToSlider(1000);
   speedValue.textContent = `${speedMultiplier}x`;
 
   speedSlider.addEventListener("input", () => {
@@ -324,19 +257,52 @@ document.addEventListener("DOMContentLoaded", () => {
     earth.rotation.set(0, 0, 0);
     satellites.forEach(sat => {
       const pos = sat.orbitFn(sat.offset);
-      sat.mesh.position.set(
-        pos.x * orbitScale,
-        pos.y * orbitScale,
-        pos.z * orbitScale
-      );
-      sat.mesh.material.color.setHex(sat.originalColor); // 리셋 시 원래 색상 복원
+      sat.mesh.position.set(pos.x * orbitScale, pos.y * orbitScale, pos.z * orbitScale);
+      sat.mesh.material.color.setHex(sat.originalColor);
     });
-    hoveredSatellite = null; // 호버 상태 초기화
+    hoveredSatellite = null;
+    createSurfacePoint(surfacePoint ? surfacePoint.userData.lat : 0, surfacePoint ? surfacePoint.userData.lon : 0);
   });
 
-  // ------------------------------
-  // 창 크기 조정 이벤트
-  // ------------------------------
+  // 좌표 입력 UI 동기화
+  const latitudeSlider = document.getElementById("latitude-slider");
+  const latitudeInput = document.getElementById("latitude-input");
+  const longitudeSlider = document.getElementById("longitude-slider");
+  const longitudeInput = document.getElementById("longitude-input");
+  const updatePointButton = document.getElementById("update-point");
+
+  function syncLatitude() {
+    latitudeSlider.value = latitudeInput.value;
+  }
+
+  function syncLongitude() {
+    longitudeSlider.value = longitudeInput.value;
+  }
+
+  latitudeSlider.addEventListener("input", () => {
+    latitudeInput.value = latitudeSlider.value;
+  });
+  longitudeSlider.addEventListener("input", () => {
+    longitudeInput.value = longitudeSlider.value;
+  });
+  latitudeInput.addEventListener("input", syncLatitude);
+  longitudeInput.addEventListener("input", syncLongitude);
+
+  updatePointButton.addEventListener("click", () => {
+    let lat = parseFloat(latitudeInput.value);
+    let lon = parseFloat(longitudeInput.value);
+
+    lat = Math.max(-90, Math.min(90, lat));
+    lon = Math.max(-180, Math.min(180, lon));
+    latitudeInput.value = lat;
+    longitudeInput.value = lon;
+    syncLatitude();
+    syncLongitude();
+
+    createSurfacePoint(lat, -1 * lon);
+  });
+
+  // 창 크기 조정
   window.addEventListener('resize', () => {
     const width = canvasContainer.clientWidth;
     const height = canvasContainer.clientHeight;

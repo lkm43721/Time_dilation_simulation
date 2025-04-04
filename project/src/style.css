@@ -121,9 +121,9 @@ body {
 .slider {
   width: 8rem;
   height: 0.375rem;
-  -webkit-appearance: none; /* Webkit 브라우저용 */
-  -moz-appearance: none;    /* Firefox용 */
-  appearance: none;         /* 표준 속성 */
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
   background-color: rgba(55, 65, 81, 1);
   border-radius: var(--border-radius-full);
   outline: none;
@@ -276,7 +276,7 @@ body {
   border-radius: var(--border-radius-full);
 }
 
-/* 타이머 관련 CSS 스타일 - style.css 파일에 추가 */
+/* 타이머 관련 CSS 스타일 */
 .timer-display {
   position: absolute;
   top: 20px;
@@ -310,4 +310,32 @@ body {
 /* 슬라이더 값 표시를 더 넓게 수정 */
 .speed-value {
   min-width: 60px;
+}
+
+/* 추가: 좌표 입력 스타일 */
+.input-group {
+  margin-bottom: 1rem;
+}
+
+.coordinate-input {
+  width: 100px;
+  padding: 0.25rem;
+  background-color: rgba(55, 65, 81, 0.8);
+  border: 1px solid var(--color-divider);
+  border-radius: var(--border-radius-md);
+  color: var(--color-foreground);
+  font-size: 0.875rem;
+  text-align: right;
+}
+
+.coordinate-input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+}
+
+/* 슬라이더와 텍스트 입력을 가로로 배치 */
+.slider-container {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
 }

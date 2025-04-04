@@ -27,14 +27,12 @@
       <!-- Bottom Controls -->
       <div class="control-bar">
         <div class="control-group">
-          <button class="play-button">
-            <i class="fa-solid fa-pause"></i>
-          </button>
-          
+          <!-- 정지/재생 버튼 제거됨 -->
           <div class="speed-control">
             <span class="speed-label">시뮬레이션 속도</span>
             <div class="slider-container">
-              <input type="range" min="1" max="100" value="50" class="slider" id="speed-slider">
+              <!-- min 속성을 0으로 수정 -->
+              <input type="range" min="0" max="100" value="50" class="slider" id="speed-slider">
               <span class="speed-value">1000x</span>
             </div>
           </div>
@@ -80,6 +78,25 @@
             <span class="info-value">29.78 km/s</span>
           </div>
         </div>
+        <!-- 추가: 좌표 입력 -->
+        <div class="info-card">
+          <h3>지구 표면 좌표 입력</h3>
+          <div class="input-group">
+            <label class="info-label" for="latitude-slider">위도 (°)</label>
+            <div class="slider-container">
+              <input type="range" min="-90" max="90" value="0" class="slider" id="latitude-slider">
+              <input type="number" min="-90" max="90" step="0.000001" value="0" class="coordinate-input" id="latitude-input">
+            </div>
+          </div>
+          <div class="input-group">
+            <label class="info-label" for="longitude-slider">경도 (°)</label>
+            <div class="slider-container">
+              <input type="range" min="-180" max="180" value="0" class="slider" id="longitude-slider">
+              <input type="number" min="-180" max="180" step="0.000001" value="0" class="coordinate-input" id="longitude-input">
+            </div>
+          </div>
+          <button class="reset-button" id="update-point">위치 업데이트</button>
+        </div>
       </div>
       
       <!-- Satellite Information Panels -->
@@ -115,5 +132,6 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="./src/script.js"></script>
   <script src="./src/three.js" type="module"></script>
+  <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'92b18eb41b887bd5',t:'MTc0Mzc3NzU5MC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script>
 </body>
 </html>
