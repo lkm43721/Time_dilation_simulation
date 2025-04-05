@@ -97,6 +97,18 @@
           </div>
           <button class="reset-button" id="update-point">위치 업데이트</button>
         </div>
+        <!-- 추가: 지구 벡터 정보 -->
+        <div class="info-card" id="earth-vector-card">
+          <h3>vector</h3>
+          <div class="info-grid">
+            <span class="info-label">x</span>
+            <span class="info-value" id="earth-vector-x">0.000000</span>
+            <span class="info-label">y</span>
+            <span class="info-value" id="earth-vector-y">0.000000</span>
+            <span class="info-label">z</span>
+            <span class="info-value" id="earth-vector-z">0.000000</span>
+          </div>
+        </div>
       </div>
       
       <!-- Satellite Information Panels -->
@@ -125,6 +137,18 @@
             <span class="info-value" id="satellite-id">없음</span>
           </div>
         </div>
+        <!-- 추가: 위성 벡터 정보 -->
+        <div class="info-card" id="satellite-vector-card">
+          <h3>vector</h3>
+          <div class="info-grid">
+            <span class="info-label">x</span>
+            <span class="info-value" id="satellite-vector-x">None</span>
+            <span class="info-label">y</span>
+            <span class="info-value" id="satellite-vector-y">None</span>
+            <span class="info-label">z</span>
+            <span class="info-value" id="satellite-vector-z">None</span>
+          </div>
+        </div>
       </div>
     </div>
   </main>
@@ -132,6 +156,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="./src/script.js"></script>
   <script src="./src/three.js" type="module"></script>
+  <script src="./src/vector.js" type="module"></script>
   <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'92b18eb41b887bd5',t:'MTc0Mzc3NzU5MC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script>
 </body>
 </html>

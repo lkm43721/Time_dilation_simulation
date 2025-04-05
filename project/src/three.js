@@ -1,4 +1,5 @@
 import * as THREE from 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.module.js';
+import { updateEarthVector, updateSatelliteVector } from './vector.js';
 
 // 타원체 지구 크기 설정
 const radiusX = 1;
@@ -132,6 +133,7 @@ document.addEventListener("DOMContentLoaded", () => {
   function showSatelliteInfo(id) {
     const satelliteIdElement = document.getElementById('satellite-id');
     if (satelliteIdElement) satelliteIdElement.textContent = id;
+    updateSatelliteVector(id);
   }
 
   // 시간 및 속도 설정
@@ -300,6 +302,7 @@ document.addEventListener("DOMContentLoaded", () => {
     syncLongitude();
 
     createSurfacePoint(lat, -1 * lon);
+    updateEarthVector(lat, lon);
   });
 
   // 창 크기 조정
