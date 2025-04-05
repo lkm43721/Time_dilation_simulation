@@ -1,141 +1,432 @@
 // vector.js
-// 위도, 경도, 위성 id 값을 실시간으로 변수에 저장하면서 vector UI를 업데이트하는 모듈
+// 위도, 경도, 위성 ID 값을 실시간으로 변수에 저장하면서 벡터 UI를 업데이트하는 모듈
 
-// 실시간 값 저장 변수 (필요시 외부에서 사용하기 위해 export 가능)
 export let currentLat = 0;
 export let currentLon = 0;
 export let currentSatelliteId = null;
 
-// 지구의 크기 상수 (km)
-const a = 6378.139;  // 적도 반지름
-const b = 6356.139;  // 극 반지름
-const T = 23 + 56/60;  // 항성일 (23시간 56분)
-
-// 라디안 변환 함수
-function degToRad(degrees) {
-  return degrees * (Math.PI / 180);
-}
-
-// x_seta 계산 함수 (회전축으로부터의 거리)
-function calculateXSeta(lat) {
-  const latRad = degToRad(lat);
-  return Math.sqrt((a**2 * b**2) / (b**2 + a**2 * (Math.tan(latRad))**2));
-}
-
-// 시뮬레이션 시간(시간 단위) 가져오기
-function getSimulationHours() {
-  const timerDays = document.getElementById('timer-days');
-  const timerHours = document.getElementById('timer-hours');
-  const timerMinutes = document.getElementById('timer-minutes');
-  const timerSeconds = document.getElementById('timer-seconds');
+// 화면에서 시간을 가져와 초 단위로 변환하는 함수
+function getSimulationTimeInSeconds() {
+  const days = parseInt(document.getElementById('timer-days').textContent, 10) || 0;
+  const hours = parseInt(document.getElementById('timer-hours').textContent, 10) || 0;
+  const minutes = parseInt(document.getElementById('timer-minutes').textContent, 10) || 0;
+  const seconds = parseInt(document.getElementById('timer-seconds').textContent, 10) || 0;
   
-  if (timerDays && timerHours && timerMinutes && timerSeconds) {
-    return parseInt(timerDays.textContent) * 24 + 
-           parseInt(timerHours.textContent) + 
-           parseInt(timerMinutes.textContent) / 60 + 
-           parseInt(timerSeconds.textContent) / 3600;
-  }
-  return 0;
+  const totalSeconds = (days * 24 * 60 * 60) + (hours * 60 * 60) + (minutes * 60) + seconds;
+  return totalSeconds;
 }
 
-// 주기적으로 지구 벡터 업데이트
-function updateEarthVectorPeriodically() {
-  if (currentLat !== null && currentLon !== null) {
-    updateEarthVectorDisplay(currentLat, currentLon);
-  }
-  
-  // 0.01초마다 업데이트 (100ms)
-  setTimeout(updateEarthVectorPeriodically, 100);
-}
-
-// 지구 벡터 디스플레이 업데이트
-function updateEarthVectorDisplay(lat, lon) {
-  const xElem = document.getElementById("earth-vector-x");
-  const yElem = document.getElementById("earth-vector-y");
-  const zElem = document.getElementById("earth-vector-z");
-  
-  if (xElem && yElem && zElem) {
-    // 시뮬레이션 총 시간(시간 단위)
-    const simulationHours = getSimulationHours();
-    
-    // x_seta 계산 (회전축으로부터의 거리)
-    const x_seta = calculateXSeta(lat);
-    
-    // 각도 변위 계산 (수식: 30π*n/359 라디안)
-    const phi = (30 * Math.PI * simulationHours) / 359;
-    
-    // 성분벡터 계산 (수식: -x_seta*π*sin(30π*n/359)/12, x_seta*π*cos(30π*n/359)/12 km/h)
-    const vx = -x_seta * Math.PI * Math.sin(phi) / 12;
-    const vy = x_seta * Math.PI * Math.cos(phi) / 12;
-    
-    // z 성분은 위도에 따라 달라짐 (단순 모델에서는 0)
-    const vz = 0;
-    
-    // 소수점 6자리까지 표시 (km/h 단위)
-    xElem.textContent = `${vy.toFixed(6)} km/h`;
-    yElem.textContent = `${vz.toFixed(6)} km/h`;
-    zElem.textContent = `${vx.toFixed(6)} km/h`;
-  }
-}
-
+// 지구 벡터 업데이트 함수
 export function updateEarthVector(lat, lon) {
-  // 전달받은 값을 실시간 변수에 저장
   currentLat = lat;
   currentLon = lon;
-  
-  // 즉시 업데이트 한 번 수행
-  updateEarthVectorDisplay(lat, lon);
-  
-  // 콘솔에 계산 정보 출력
-  console.log(`지구 표면 위치 업데이트 - 위도: ${lat}°, 경도: ${lon}°`);
-  
-  // 주기적 업데이트가 아직 설정되지 않았다면 시작
-  if (!window.earthVectorUpdateStarted) {
-    window.earthVectorUpdateStarted = true;
-    updateEarthVectorPeriodically();
-  }
+  console.log(`위도: ${lat.toFixed(6)}, 경도: ${lon.toFixed(6)}`);
 }
 
+// 위성 벡터 업데이트 함수
 export function updateSatelliteVector(id) {
-  // 전달받은 위성 id 값을 실시간 변수에 저장
   currentSatelliteId = id;
-  
-  // 위성 id가 바뀔 때마다 console.log로 출력
-  console.log(`위성 id: ${id}`);
+  console.log(`위성 ID: ${id}`);
+}
 
-  const xElem = document.getElementById("satellite-vector-x");
-  const yElem = document.getElementById("satellite-vector-y");
-  const zElem = document.getElementById("satellite-vector-z");
-  
-  if (xElem && yElem && zElem) {
-    if (id == null || id === "없음") {
-      xElem.textContent = "None";
-      yElem.textContent = "None";
-      zElem.textContent = "None";
-    } else {
-      // 위성 속도 계산 (실제 GPS 위성 속도는 약 3.87 km/s)
-      const orbitRadius = 26578; // GPS 위성 궤도 반지름 (km) = 지구 반지름 + 고도(20,200km)
-      const orbitPeriod = 11 * 60 * 60 + 58 * 60; // GPS 위성 궤도 주기 (초)
-      const speed = (2 * Math.PI * orbitRadius) / orbitPeriod; // km/s
+// 주기적으로 벡터 정보를 업데이트하는 함수
+function updateVectorsWithTime() {
+  const totalSeconds = getSimulationTimeInSeconds();
+
+  // 지구 벡터 업데이트 중요!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  //여기 함수에서 위도:current Lat
+  //여기 함수에서 경도:current Lon
+  //여기 함수에서 시간: totalSeconds
+  if (currentLat !== null && currentLon !== null) {
+    const xElem = document.getElementById("earth-vector-x");
+    const yElem = document.getElementById("earth-vector-y");
+    const zElem = document.getElementById("earth-vector-z");
+    if (xElem && yElem && zElem) {
+      const a = 6378.139
+      const b = 6356.139
+      const seta = currentLat
+      const n = ((totalSeconds/86160)*360) % 360
+      const x_seta = Math.sqrt((a**2*b**2)/(b**2+a**2*Math.tan((Math.abs(seta) * Math.PI) / 180)))
+      const newX = ((30*x_seta*Math.PI)/359)*Math.cos((n * Math.PI) / 180)
+      const newY = 0
+      const newZ = ((-30*x_seta*Math.PI)/359)*Math.sin((n * Math.PI) / 180)
       
-      // ID에 따라 다른 방향 벡터 생성 (실제로는 위성 위치에 따라 계산해야 함)
-      const angle = (id / 24) * 2 * Math.PI; // ID를 기반으로 한 단순 각도
-      
-      xElem.textContent = `${(speed * Math.cos(angle)).toFixed(6)} km/s`;
-      yElem.textContent = `${(speed * Math.sin(angle)).toFixed(6)} km/s`;
-      zElem.textContent = `${(speed * 0.1 * Math.cos(angle * 2)).toFixed(6)} km/s`;
+      xElem.textContent = newX.toFixed(6);
+      yElem.textContent = newY.toFixed(6);
+      zElem.textContent = newZ.toFixed(6);
+    }
+
+  }
+
+  // 위성 벡터 업데이트
+  if (currentSatelliteId !== null) {
+    const xElem = document.getElementById("satellite-vector-x");
+    const yElem = document.getElementById("satellite-vector-y");
+    const zElem = document.getElementById("satellite-vector-z");
+    const n2 = ((totalSeconds/43080)*360) % 360
+    const satellite_radius = 20200;
+    if (xElem && yElem && zElem) {
+      if (currentSatelliteId === "없음") {
+        xElem.textContent = "None";
+        yElem.textContent = "None";
+        zElem.textContent = "None";
+      } else {
+        const currentId = parseFloat(currentSatelliteId);
+        if (isNaN(currentId)) {
+          xElem.textContent = "Invalid ID";
+          yElem.textContent = "Invalid ID";
+          zElem.textContent = "Invalid ID";
+
+
+          //빨강 궤도
+        } else if(currentId == 1){
+          const newX = ((-30*satellite_radius*2*Math.PI)/359)*Math.cos((((90-n2)%360) * Math.PI)/180)
+          const newY = 0
+          const newZ = ((30*satellite_radius*2*Math.PI)/359)*Math.sin((((90-n2)%360) * Math.PI)/180)
+          //55도 회전변환
+          const rot1_newX = newX*Math.cos((55 * Math.PI)/180)-newY*Math.sin((55 * Math.PI)/180)
+          const rot1_newY = newX*Math.sin((55 * Math.PI)/180)+newY*Math.cos((55 * Math.PI)/180)
+          const rot1_newZ = newZ
+          xElem.textContent = rot1_newX.toFixed(6);
+          yElem.textContent = rot1_newY.toFixed(6);
+          zElem.textContent = rot1_newZ.toFixed(6);
+        } else if(currentId == 2){
+          const newX = ((-30*satellite_radius*2*Math.PI)/359)*Math.cos((n2 * Math.PI)/180)
+          const newY = 0
+          const newZ = ((-30*satellite_radius*2*Math.PI)/359)*Math.sin((n2 * Math.PI)/180)
+          //55도 회전변환
+          const rot1_newX = newX*Math.cos((55 * Math.PI)/180)-newY*Math.sin((55 * Math.PI)/180)
+          const rot1_newY = newX*Math.sin((55 * Math.PI)/180)+newY*Math.cos((55 * Math.PI)/180)
+          const rot1_newZ = newZ
+          xElem.textContent = rot1_newX.toFixed(6);
+          yElem.textContent = rot1_newY.toFixed(6);
+          zElem.textContent = rot1_newZ.toFixed(6);
+        } else if(currentId == 3){
+          const newX = ((30*satellite_radius*2*Math.PI)/359)*Math.cos((((90-n2)%360) * Math.PI)/180)
+          const newY = 0
+          const newZ = ((-30*satellite_radius*2*Math.PI)/359)*Math.sin((((90-n2)%360) * Math.PI)/180)
+          //55도 회전변환
+          const rot1_newX = newX*Math.cos((55 * Math.PI)/180)-newY*Math.sin((55 * Math.PI)/180)
+          const rot1_newY = newX*Math.sin((55 * Math.PI)/180)+newY*Math.cos((55 * Math.PI)/180)
+          const rot1_newZ = newZ
+          xElem.textContent = rot1_newX.toFixed(6);
+          yElem.textContent = rot1_newY.toFixed(6);
+          zElem.textContent = rot1_newZ.toFixed(6);
+        } else if(currentId == 4){
+          const newX = ((30*satellite_radius*2*Math.PI)/359)*Math.cos((n2 * Math.PI)/180)
+          const newY = 0
+          const newZ = ((30*satellite_radius*2*Math.PI)/359)*Math.sin((n2 * Math.PI)/180)
+          //55도 회전변환
+          const rot1_newX = newX*Math.cos((55 * Math.PI)/180)-newY*Math.sin((55 * Math.PI)/180)
+          const rot1_newY = newX*Math.sin((55 * Math.PI)/180)+newY*Math.cos((55 * Math.PI)/180)
+          const rot1_newZ = newZ
+          xElem.textContent = rot1_newX.toFixed(6);
+          yElem.textContent = rot1_newY.toFixed(6);
+          zElem.textContent = rot1_newZ.toFixed(6);
+
+
+          //초록 궤도
+        } else if(currentId == 5){
+          const newX = ((-30*satellite_radius*2*Math.PI)/359)*Math.cos((((90-n2)%360) * Math.PI)/180)
+          const newY = 0
+          const newZ = ((30*satellite_radius*2*Math.PI)/359)*Math.sin((((90-n2)%360) * Math.PI)/180)
+          //55도 회전변환
+          const rot1_newX = newX*Math.cos((55 * Math.PI)/180)-newY*Math.sin((55 * Math.PI)/180)
+          const rot1_newY = newX*Math.sin((55 * Math.PI)/180)+newY*Math.cos((55 * Math.PI)/180)
+          const rot1_newZ = newZ
+          //300도 회전변환
+          const rot2_newX = rot1_newX*Math.cos((300 * Math.PI)/180)-rot1_newZ*Math.sin((300 * Math.PI)/180)
+          const rot2_newY = rot1_newY
+          const rot2_newZ = rot1_newX*Math.sin((300 * Math.PI)/180)+rot1_newZ*Math.cos((300 * Math.PI)/180)
+          xElem.textContent = rot2_newX.toFixed(6);
+          yElem.textContent = rot2_newY.toFixed(6);
+          zElem.textContent = rot2_newZ.toFixed(6);
+        } else if(currentId == 6){
+          const newX = ((-30*satellite_radius*2*Math.PI)/359)*Math.cos((n2 * Math.PI)/180)
+          const newY = 0
+          const newZ = ((-30*satellite_radius*2*Math.PI)/359)*Math.sin((n2 * Math.PI)/180)
+          //55도 회전변환
+          const rot1_newX = newX*Math.cos((55 * Math.PI)/180)-newY*Math.sin((55 * Math.PI)/180)
+          const rot1_newY = newX*Math.sin((55 * Math.PI)/180)+newY*Math.cos((55 * Math.PI)/180)
+          const rot1_newZ = newZ
+          //300도 회전변환
+          const rot2_newX = rot1_newX*Math.cos((300 * Math.PI)/180)-rot1_newZ*Math.sin((300 * Math.PI)/180)
+          const rot2_newY = rot1_newY
+          const rot2_newZ = rot1_newX*Math.sin((300 * Math.PI)/180)+rot1_newZ*Math.cos((300 * Math.PI)/180)
+          xElem.textContent = rot2_newX.toFixed(6);
+          yElem.textContent = rot2_newY.toFixed(6);
+          zElem.textContent = rot2_newZ.toFixed(6);
+        } else if(currentId == 7){
+          const newX = ((30*satellite_radius*2*Math.PI)/359)*Math.cos((((90-n2)%360) * Math.PI)/180)
+          const newY = 0
+          const newZ = ((-30*satellite_radius*2*Math.PI)/359)*Math.sin((((90-n2)%360) * Math.PI)/180)
+          //55도 회전변환
+          const rot1_newX = newX*Math.cos((55 * Math.PI)/180)-newY*Math.sin((55 * Math.PI)/180)
+          const rot1_newY = newX*Math.sin((55 * Math.PI)/180)+newY*Math.cos((55 * Math.PI)/180)
+          const rot1_newZ = newZ
+          //300도 회전변환
+          const rot2_newX = rot1_newX*Math.cos((300 * Math.PI)/180)-rot1_newZ*Math.sin((300 * Math.PI)/180)
+          const rot2_newY = rot1_newY
+          const rot2_newZ = rot1_newX*Math.sin((300 * Math.PI)/180)+rot1_newZ*Math.cos((300 * Math.PI)/180)
+          xElem.textContent = rot2_newX.toFixed(6);
+          yElem.textContent = rot2_newY.toFixed(6);
+          zElem.textContent = rot2_newZ.toFixed(6);
+        } else if(currentId == 8){
+          const newX = ((30*satellite_radius*2*Math.PI)/359)*Math.cos((n2 * Math.PI)/180)
+          const newY = 0
+          const newZ = ((30*satellite_radius*2*Math.PI)/359)*Math.sin((n2 * Math.PI)/180)
+          //55도 회전변환
+          const rot1_newX = newX*Math.cos((55 * Math.PI)/180)-newY*Math.sin((55 * Math.PI)/180)
+          const rot1_newY = newX*Math.sin((55 * Math.PI)/180)+newY*Math.cos((55 * Math.PI)/180)
+          const rot1_newZ = newZ
+          //300도 회전변환
+          const rot2_newX = rot1_newX*Math.cos((300 * Math.PI)/180)-rot1_newZ*Math.sin((300 * Math.PI)/180)
+          const rot2_newY = rot1_newY
+          const rot2_newZ = rot1_newX*Math.sin((300 * Math.PI)/180)+rot1_newZ*Math.cos((300 * Math.PI)/180)
+          xElem.textContent = rot2_newX.toFixed(6);
+          yElem.textContent = rot2_newY.toFixed(6);
+          zElem.textContent = rot2_newZ.toFixed(6);
+
+
+          //파랑 궤도
+        } else if(currentId == 9){
+          const newX = ((-30*satellite_radius*2*Math.PI)/359)*Math.cos((((90-n2)%360) * Math.PI)/180)
+          const newY = 0
+          const newZ = ((30*satellite_radius*2*Math.PI)/359)*Math.sin((((90-n2)%360) * Math.PI)/180)
+          //55도 회전변환
+          const rot1_newX = newX*Math.cos((55 * Math.PI)/180)-newY*Math.sin((55 * Math.PI)/180)
+          const rot1_newY = newX*Math.sin((55 * Math.PI)/180)+newY*Math.cos((55 * Math.PI)/180)
+          const rot1_newZ = newZ
+          //60도 회전변환
+          const rot2_newX = rot1_newX*Math.cos((60 * Math.PI)/180)-rot1_newZ*Math.sin((60 * Math.PI)/180)
+          const rot2_newY = rot1_newY
+          const rot2_newZ = rot1_newX*Math.sin((60 * Math.PI)/180)+rot1_newZ*Math.cos((60 * Math.PI)/180)
+          xElem.textContent = rot2_newX.toFixed(6);
+          yElem.textContent = rot2_newY.toFixed(6);
+          zElem.textContent = rot2_newZ.toFixed(6);
+        } else if(currentId == 10){
+          const newX = ((-30*satellite_radius*2*Math.PI)/359)*Math.cos((n2 * Math.PI)/180)
+          const newY = 0
+          const newZ = ((-30*satellite_radius*2*Math.PI)/359)*Math.sin((n2 * Math.PI)/180)
+          //55도 회전변환
+          const rot1_newX = newX*Math.cos((55 * Math.PI)/180)-newY*Math.sin((55 * Math.PI)/180)
+          const rot1_newY = newX*Math.sin((55 * Math.PI)/180)+newY*Math.cos((55 * Math.PI)/180)
+          const rot1_newZ = newZ
+          //60도 회전변환
+          const rot2_newX = rot1_newX*Math.cos((60 * Math.PI)/180)-rot1_newZ*Math.sin((60 * Math.PI)/180)
+          const rot2_newY = rot1_newY
+          const rot2_newZ = rot1_newX*Math.sin((60 * Math.PI)/180)+rot1_newZ*Math.cos((60 * Math.PI)/180)
+          xElem.textContent = rot2_newX.toFixed(6);
+          yElem.textContent = rot2_newY.toFixed(6);
+          zElem.textContent = rot2_newZ.toFixed(6);
+        } else if(currentId == 11){
+          const newX = ((30*satellite_radius*2*Math.PI)/359)*Math.cos((((90-n2)%360) * Math.PI)/180)
+          const newY = 0
+          const newZ = ((-30*satellite_radius*2*Math.PI)/359)*Math.sin((((90-n2)%360) * Math.PI)/180)
+          //55도 회전변환
+          const rot1_newX = newX*Math.cos((55 * Math.PI)/180)-newY*Math.sin((55 * Math.PI)/180)
+          const rot1_newY = newX*Math.sin((55 * Math.PI)/180)+newY*Math.cos((55 * Math.PI)/180)
+          const rot1_newZ = newZ
+          //60도 회전변환
+          const rot2_newX = rot1_newX*Math.cos((60 * Math.PI)/180)-rot1_newZ*Math.sin((60 * Math.PI)/180)
+          const rot2_newY = rot1_newY
+          const rot2_newZ = rot1_newX*Math.sin((60 * Math.PI)/180)+rot1_newZ*Math.cos((60 * Math.PI)/180)
+          xElem.textContent = rot2_newX.toFixed(6);
+          yElem.textContent = rot2_newY.toFixed(6);
+          zElem.textContent = rot2_newZ.toFixed(6);
+        } else if(currentId == 12){
+          const newX = ((30*satellite_radius*2*Math.PI)/359)*Math.cos((n2 * Math.PI)/180)
+          const newY = 0
+          const newZ = ((30*satellite_radius*2*Math.PI)/359)*Math.sin((n2 * Math.PI)/180)
+          //55도 회전변환
+          const rot1_newX = newX*Math.cos((55 * Math.PI)/180)-newY*Math.sin((55 * Math.PI)/180)
+          const rot1_newY = newX*Math.sin((55 * Math.PI)/180)+newY*Math.cos((55 * Math.PI)/180)
+          const rot1_newZ = newZ
+          //60도 회전변환
+          const rot2_newX = rot1_newX*Math.cos((60 * Math.PI)/180)-rot1_newZ*Math.sin((60 * Math.PI)/180)
+          const rot2_newY = rot1_newY
+          const rot2_newZ = rot1_newX*Math.sin((60 * Math.PI)/180)+rot1_newZ*Math.cos((60 * Math.PI)/180)
+          xElem.textContent = rot2_newX.toFixed(6);
+          yElem.textContent = rot2_newY.toFixed(6);
+          zElem.textContent = rot2_newZ.toFixed(6);
+
+
+          //노랑 궤도
+        }else if(currentId == 13){
+          const newX = ((-30*satellite_radius*2*Math.PI)/359)*Math.cos((((90-n2)%360) * Math.PI)/180)
+          const newY = 0
+          const newZ = ((30*satellite_radius*2*Math.PI)/359)*Math.sin((((90-n2)%360) * Math.PI)/180)
+          //305도 회전변환
+          const rot1_newX = newX*Math.cos((305 * Math.PI)/180)-newY*Math.sin((305 * Math.PI)/180)
+          const rot1_newY = newX*Math.sin((305 * Math.PI)/180)+newY*Math.cos((305 * Math.PI)/180)
+          const rot1_newZ = newZ
+          xElem.textContent = rot1_newX.toFixed(6);
+          yElem.textContent = rot1_newY.toFixed(6);
+          zElem.textContent = rot1_newZ.toFixed(6);
+        } else if(currentId == 14){
+          const newX = ((-30*satellite_radius*2*Math.PI)/359)*Math.cos((n2 * Math.PI)/180)
+          const newY = 0
+          const newZ = ((-30*satellite_radius*2*Math.PI)/359)*Math.sin((n2 * Math.PI)/180)
+          //305도 회전변환
+          const rot1_newX = newX*Math.cos((305 * Math.PI)/180)-newY*Math.sin((305 * Math.PI)/180)
+          const rot1_newY = newX*Math.sin((305 * Math.PI)/180)+newY*Math.cos((305 * Math.PI)/180)
+          const rot1_newZ = newZ
+          xElem.textContent = rot1_newX.toFixed(6);
+          yElem.textContent = rot1_newY.toFixed(6);
+          zElem.textContent = rot1_newZ.toFixed(6);
+        } else if(currentId == 15){
+          const newX = ((30*satellite_radius*2*Math.PI)/359)*Math.cos((((90-n2)%360) * Math.PI)/180)
+          const newY = 0
+          const newZ = ((-30*satellite_radius*2*Math.PI)/359)*Math.sin((((90-n2)%360) * Math.PI)/180)
+          //305도 회전변환
+          const rot1_newX = newX*Math.cos((305 * Math.PI)/180)-newY*Math.sin((305 * Math.PI)/180)
+          const rot1_newY = newX*Math.sin((305 * Math.PI)/180)+newY*Math.cos((305 * Math.PI)/180)
+          const rot1_newZ = newZ
+          xElem.textContent = rot1_newX.toFixed(6);
+          yElem.textContent = rot1_newY.toFixed(6);
+          zElem.textContent = rot1_newZ.toFixed(6);
+        } else if(currentId == 16){
+          const newX = ((30*satellite_radius*2*Math.PI)/359)*Math.cos((n2 * Math.PI)/180)
+          const newY = 0
+          const newZ = ((30*satellite_radius*2*Math.PI)/359)*Math.sin((n2 * Math.PI)/180)
+          //305도 회전변환
+          const rot1_newX = newX*Math.cos((305 * Math.PI)/180)-newY*Math.sin((305 * Math.PI)/180)
+          const rot1_newY = newX*Math.sin((305 * Math.PI)/180)+newY*Math.cos((305 * Math.PI)/180)
+          const rot1_newZ = newZ
+          xElem.textContent = rot1_newX.toFixed(6);
+          yElem.textContent = rot1_newY.toFixed(6);
+          zElem.textContent = rot1_newZ.toFixed(6);
+          
+
+          //핑크 궤도
+        } else if(currentId == 17){
+          const newX = ((-30*satellite_radius*2*Math.PI)/359)*Math.cos((((90-n2)%360) * Math.PI)/180)
+          const newY = 0
+          const newZ = ((30*satellite_radius*2*Math.PI)/359)*Math.sin((((90-n2)%360) * Math.PI)/180)
+          //305도 회전변환
+          const rot1_newX = newX*Math.cos((305 * Math.PI)/180)-newY*Math.sin((305 * Math.PI)/180)
+          const rot1_newY = newX*Math.sin((305 * Math.PI)/180)+newY*Math.cos((305 * Math.PI)/180)
+          const rot1_newZ = newZ
+          //300도 회전변환
+          const rot2_newX = rot1_newX*Math.cos((300 * Math.PI)/180)-rot1_newZ*Math.sin((300 * Math.PI)/180)
+          const rot2_newY = rot1_newY
+          const rot2_newZ = rot1_newX*Math.sin((300 * Math.PI)/180)+rot1_newZ*Math.cos((300 * Math.PI)/180)
+          xElem.textContent = rot2_newX.toFixed(6);
+          yElem.textContent = rot2_newY.toFixed(6);
+          zElem.textContent = rot2_newZ.toFixed(6);
+        } else if(currentId == 18){
+          const newX = ((-30*satellite_radius*2*Math.PI)/359)*Math.cos((n2 * Math.PI)/180)
+          const newY = 0
+          const newZ = ((-30*satellite_radius*2*Math.PI)/359)*Math.sin((n2 * Math.PI)/180)
+          //305도 회전변환
+          const rot1_newX = newX*Math.cos((305 * Math.PI)/180)-newY*Math.sin((305 * Math.PI)/180)
+          const rot1_newY = newX*Math.sin((305 * Math.PI)/180)+newY*Math.cos((305 * Math.PI)/180)
+          const rot1_newZ = newZ
+          //300도 회전변환
+          const rot2_newX = rot1_newX*Math.cos((300 * Math.PI)/180)-rot1_newZ*Math.sin((300 * Math.PI)/180)
+          const rot2_newY = rot1_newY
+          const rot2_newZ = rot1_newX*Math.sin((300 * Math.PI)/180)+rot1_newZ*Math.cos((300 * Math.PI)/180)
+          xElem.textContent = rot2_newX.toFixed(6);
+          yElem.textContent = rot2_newY.toFixed(6);
+          zElem.textContent = rot2_newZ.toFixed(6);
+        } else if(currentId == 19){
+          const newX = ((30*satellite_radius*2*Math.PI)/359)*Math.cos((((90-n2)%360) * Math.PI)/180)
+          const newY = 0
+          const newZ = ((-30*satellite_radius*2*Math.PI)/359)*Math.sin((((90-n2)%360) * Math.PI)/180)
+          //305도 회전변환
+          const rot1_newX = newX*Math.cos((305 * Math.PI)/180)-newY*Math.sin((305 * Math.PI)/180)
+          const rot1_newY = newX*Math.sin((305 * Math.PI)/180)+newY*Math.cos((305 * Math.PI)/180)
+          const rot1_newZ = newZ
+          //300도 회전변환
+          const rot2_newX = rot1_newX*Math.cos((300 * Math.PI)/180)-rot1_newZ*Math.sin((300 * Math.PI)/180)
+          const rot2_newY = rot1_newY
+          const rot2_newZ = rot1_newX*Math.sin((300 * Math.PI)/180)+rot1_newZ*Math.cos((300 * Math.PI)/180)
+          xElem.textContent = rot2_newX.toFixed(6);
+          yElem.textContent = rot2_newY.toFixed(6);
+          zElem.textContent = rot2_newZ.toFixed(6);
+        } else if(currentId == 20){
+          const newX = ((30*satellite_radius*2*Math.PI)/359)*Math.cos((n2 * Math.PI)/180)
+          const newY = 0
+          const newZ = ((30*satellite_radius*2*Math.PI)/359)*Math.sin((n2 * Math.PI)/180)
+          //305도 회전변환
+          const rot1_newX = newX*Math.cos((305 * Math.PI)/180)-newY*Math.sin((305 * Math.PI)/180)
+          const rot1_newY = newX*Math.sin((305 * Math.PI)/180)+newY*Math.cos((305 * Math.PI)/180)
+          const rot1_newZ = newZ
+          //300도 회전변환
+          const rot2_newX = rot1_newX*Math.cos((300 * Math.PI)/180)-rot1_newZ*Math.sin((300 * Math.PI)/180)
+          const rot2_newY = rot1_newY
+          const rot2_newZ = rot1_newX*Math.sin((300 * Math.PI)/180)+rot1_newZ*Math.cos((300 * Math.PI)/180)
+          xElem.textContent = rot2_newX.toFixed(6);
+          yElem.textContent = rot2_newY.toFixed(6);
+          zElem.textContent = rot2_newZ.toFixed(6);
+
+
+          //하늘 궤도
+        } else if(currentId == 21){
+          const newX = ((-30*satellite_radius*2*Math.PI)/359)*Math.cos((((90-n2)%360) * Math.PI)/180)
+          const newY = 0
+          const newZ = ((30*satellite_radius*2*Math.PI)/359)*Math.sin((((90-n2)%360) * Math.PI)/180)
+          //305도 회전변환
+          const rot1_newX = newX*Math.cos((305 * Math.PI)/180)-newY*Math.sin((305 * Math.PI)/180)
+          const rot1_newY = newX*Math.sin((305 * Math.PI)/180)+newY*Math.cos((305 * Math.PI)/180)
+          const rot1_newZ = newZ
+          //60도 회전변환
+          const rot2_newX = rot1_newX*Math.cos((60 * Math.PI)/180)-rot1_newZ*Math.sin((60 * Math.PI)/180)
+          const rot2_newY = rot1_newY
+          const rot2_newZ = rot1_newX*Math.sin((60 * Math.PI)/180)+rot1_newZ*Math.cos((60 * Math.PI)/180)
+          xElem.textContent = rot2_newX.toFixed(6);
+          yElem.textContent = rot2_newY.toFixed(6);
+          zElem.textContent = rot2_newZ.toFixed(6);
+        } else if(currentId == 22){
+          const newX = ((-30*satellite_radius*2*Math.PI)/359)*Math.cos((n2 * Math.PI)/180)
+          const newY = 0
+          const newZ = ((-30*satellite_radius*2*Math.PI)/359)*Math.sin((n2 * Math.PI)/180)
+          //305도 회전변환
+          const rot1_newX = newX*Math.cos((305 * Math.PI)/180)-newY*Math.sin((305 * Math.PI)/180)
+          const rot1_newY = newX*Math.sin((305 * Math.PI)/180)+newY*Math.cos((305 * Math.PI)/180)
+          const rot1_newZ = newZ
+          //60도 회전변환
+          const rot2_newX = rot1_newX*Math.cos((60 * Math.PI)/180)-rot1_newZ*Math.sin((60 * Math.PI)/180)
+          const rot2_newY = rot1_newY
+          const rot2_newZ = rot1_newX*Math.sin((60 * Math.PI)/180)+rot1_newZ*Math.cos((60 * Math.PI)/180)
+          xElem.textContent = rot2_newX.toFixed(6);
+          yElem.textContent = rot2_newY.toFixed(6);
+          zElem.textContent = rot2_newZ.toFixed(6);
+        } else if(currentId == 23){
+          const newX = ((30*satellite_radius*2*Math.PI)/359)*Math.cos((((90-n2)%360) * Math.PI)/180)
+          const newY = 0
+          const newZ = ((-30*satellite_radius*2*Math.PI)/359)*Math.sin((((90-n2)%360) * Math.PI)/180)
+          //305도 회전변환
+          const rot1_newX = newX*Math.cos((305 * Math.PI)/180)-newY*Math.sin((305 * Math.PI)/180)
+          const rot1_newY = newX*Math.sin((305 * Math.PI)/180)+newY*Math.cos((305 * Math.PI)/180)
+          const rot1_newZ = newZ
+          //60도 회전변환
+          const rot2_newX = rot1_newX*Math.cos((60 * Math.PI)/180)-rot1_newZ*Math.sin((60 * Math.PI)/180)
+          const rot2_newY = rot1_newY
+          const rot2_newZ = rot1_newX*Math.sin((60 * Math.PI)/180)+rot1_newZ*Math.cos((60 * Math.PI)/180)
+          xElem.textContent = rot2_newX.toFixed(6);
+          yElem.textContent = rot2_newY.toFixed(6);
+          zElem.textContent = rot2_newZ.toFixed(6);
+        } else if(currentId == 24){
+          const newX = ((30*satellite_radius*2*Math.PI)/359)*Math.cos((n2 * Math.PI)/180)
+          const newY = 0
+          const newZ = ((30*satellite_radius*2*Math.PI)/359)*Math.sin((n2 * Math.PI)/180)
+          //305도 회전변환
+          const rot1_newX = newX*Math.cos((305 * Math.PI)/180)-newY*Math.sin((305 * Math.PI)/180)
+          const rot1_newY = newX*Math.sin((305 * Math.PI)/180)+newY*Math.cos((305 * Math.PI)/180)
+          const rot1_newZ = newZ
+          //60도 회전변환
+          const rot2_newX = rot1_newX*Math.cos((60 * Math.PI)/180)-rot1_newZ*Math.sin((60 * Math.PI)/180)
+          const rot2_newY = rot1_newY
+          const rot2_newZ = rot1_newX*Math.sin((60 * Math.PI)/180)+rot1_newZ*Math.cos((60 * Math.PI)/180)
+          xElem.textContent = rot2_newX.toFixed(6);
+          yElem.textContent = rot2_newY.toFixed(6);
+          zElem.textContent = rot2_newZ.toFixed(6);
+        }
+      }
     }
   }
 }
 
-// 페이지 로드 시 초기화
-document.addEventListener("DOMContentLoaded", () => {
-  // 주기적인 업데이트 시작
-  if (!window.earthVectorUpdateStarted) {
-    window.earthVectorUpdateStarted = true;
-    updateEarthVectorPeriodically();
-  }
-  
-  // 초기값으로 벡터 정보 표시
-  updateEarthVector(0, 0);
-});
+// 1초마다 업데이트 실행
+setInterval(updateVectorsWithTime, 10);

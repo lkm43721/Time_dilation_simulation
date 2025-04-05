@@ -20,6 +20,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // 카메라 위치 설정
   camera.position.z = 7;
   camera.lookAt(0, 0, 0);
+  //camera.rotation.z = THREE.MathUtils.degToRad(23.4); //자전축 정상화 할때 쓸것!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
   // 지구 생성
   const geometry = new THREE.SphereGeometry(1, 32, 32);
