@@ -1,13 +1,12 @@
 // vector.js
 // 위도, 경도, 위성 ID 값을 실시간으로 변수에 저장하면서 벡터 UI를 업데이트하는 모듈
-import { TimeSumDilation } from "./time.js"
 
 export let currentLat = 0;
 export let currentLon = 0;
 export let currentSatelliteId = null;
 
 export function resetSatelliteId() {
-  currentSatelliteId = null;
+  currentSatelliteId = '없음';
   // TimeSumDilation 재할당 제거
   console.log("위성 ID가 리셋되었습니다.");
 }

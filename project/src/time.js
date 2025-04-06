@@ -7,18 +7,17 @@ let setId = document.getElementById("satellite-id");
 let setId1 = setId;
 export let TimeSumDilation = 0;
 
-
 const resetButton = document.getElementById("reset-button");
 resetButton.addEventListener("click", () => {
-//   const satelliteIdElem = document.getElementById("satellite-id");
-//   satelliteIdElem.textContent = "없음";  // DOM 업데이트
-//   setId = satelliteIdElem;
-//   setId1 = satelliteIdElem;
+  const satelliteIdElem = document.getElementById("satellite-id");
+  satelliteIdElem.textContent = "없음";  // DOM 업데이트
+  setId = satelliteIdElem;
+  setId1 = satelliteIdElem;
   
-//   resetSatelliteId();
+  resetSatelliteId();
   
-//   TD.textContent = '0.00000000000';
-    location.reload();
+  TD.textContent = '0.00000000000';
+    // location.reload();
 });
 
 
