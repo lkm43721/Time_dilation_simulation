@@ -1,9 +1,18 @@
 // vector.js
 // 위도, 경도, 위성 ID 값을 실시간으로 변수에 저장하면서 벡터 UI를 업데이트하는 모듈
+import { TimeSumDilation } from "./time.js"
 
 export let currentLat = 0;
 export let currentLon = 0;
 export let currentSatelliteId = null;
+
+export function resetSatelliteId() {
+  currentSatelliteId = null;
+  // TimeSumDilation 재할당 제거
+  console.log("위성 ID가 리셋되었습니다.");
+}
+
+
 
 // 화면에서 시간을 가져와 초 단위로 변환하는 함수
 function getSimulationTimeInSeconds() {
@@ -30,7 +39,7 @@ export function updateSatelliteVector(id) {
 }
 
 // 주기적으로 벡터 정보를 업데이트하는 함수
-function updateVectorsWithTime() {
+export function updateEarthVectors() {
   const totalSeconds = getSimulationTimeInSeconds();
 
   // 지구 벡터 업데이트 중요!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -51,12 +60,19 @@ function updateVectorsWithTime() {
       const newY = 0
       const newZ = ((-30*x_seta*Math.PI)/359)*Math.sin((n * Math.PI) / 180)
       
-      xElem.textContent = newX.toFixed(6);
-      yElem.textContent = newY.toFixed(6);
-      zElem.textContent = newZ.toFixed(6);
+      xElem.textContent = newX.toFixed(6) + ' km/h';
+      yElem.textContent = newY.toFixed(6) + ' km/h';
+      zElem.textContent = newZ.toFixed(6) + ' km/h';
+
+      return [newX,newY,newZ]
+      
     }
 
   }
+}
+
+export function updateSetelliteVectors() {
+  const totalSeconds = getSimulationTimeInSeconds();
 
   // 위성 벡터 업데이트
   if (currentSatelliteId !== null) {
@@ -64,7 +80,7 @@ function updateVectorsWithTime() {
     const yElem = document.getElementById("satellite-vector-y");
     const zElem = document.getElementById("satellite-vector-z");
     const n2 = ((totalSeconds/43080)*360) % 360
-    const satellite_radius = 20200;
+    const satellite_radius = 20200+6400; //지구 반지름 6400으로 임의 설정 한 것 이므로 나중에 수정할것
     if (xElem && yElem && zElem) {
       if (currentSatelliteId === "없음") {
         xElem.textContent = "None";
@@ -87,9 +103,11 @@ function updateVectorsWithTime() {
           const rot1_newX = newX*Math.cos((55 * Math.PI)/180)-newY*Math.sin((55 * Math.PI)/180)
           const rot1_newY = newX*Math.sin((55 * Math.PI)/180)+newY*Math.cos((55 * Math.PI)/180)
           const rot1_newZ = newZ
-          xElem.textContent = rot1_newX.toFixed(6);
-          yElem.textContent = rot1_newY.toFixed(6);
-          zElem.textContent = rot1_newZ.toFixed(6);
+          xElem.textContent = rot1_newX.toFixed(6)+ ' km/h';
+          yElem.textContent = rot1_newY.toFixed(6)+ ' km/h';
+          zElem.textContent = rot1_newZ.toFixed(6)+ ' km/h';
+          return [rot1_newX, rot1_newY, rot1_newZ]
+
         } else if(currentId == 2){
           const newX = ((-30*satellite_radius*2*Math.PI)/359)*Math.cos((n2 * Math.PI)/180)
           const newY = 0
@@ -98,9 +116,11 @@ function updateVectorsWithTime() {
           const rot1_newX = newX*Math.cos((55 * Math.PI)/180)-newY*Math.sin((55 * Math.PI)/180)
           const rot1_newY = newX*Math.sin((55 * Math.PI)/180)+newY*Math.cos((55 * Math.PI)/180)
           const rot1_newZ = newZ
-          xElem.textContent = rot1_newX.toFixed(6);
-          yElem.textContent = rot1_newY.toFixed(6);
-          zElem.textContent = rot1_newZ.toFixed(6);
+          xElem.textContent = rot1_newX.toFixed(6)+ ' km/h';
+          yElem.textContent = rot1_newY.toFixed(6)+ ' km/h';
+          zElem.textContent = rot1_newZ.toFixed(6)+ ' km/h';
+          return [rot1_newX, rot1_newY, rot1_newZ]
+
         } else if(currentId == 3){
           const newX = ((30*satellite_radius*2*Math.PI)/359)*Math.cos((((90-n2)%360) * Math.PI)/180)
           const newY = 0
@@ -109,9 +129,11 @@ function updateVectorsWithTime() {
           const rot1_newX = newX*Math.cos((55 * Math.PI)/180)-newY*Math.sin((55 * Math.PI)/180)
           const rot1_newY = newX*Math.sin((55 * Math.PI)/180)+newY*Math.cos((55 * Math.PI)/180)
           const rot1_newZ = newZ
-          xElem.textContent = rot1_newX.toFixed(6);
-          yElem.textContent = rot1_newY.toFixed(6);
-          zElem.textContent = rot1_newZ.toFixed(6);
+          xElem.textContent = rot1_newX.toFixed(6)+ ' km/h';
+          yElem.textContent = rot1_newY.toFixed(6)+ ' km/h';
+          zElem.textContent = rot1_newZ.toFixed(6)+ ' km/h';
+          return [rot1_newX, rot1_newY, rot1_newZ]
+
         } else if(currentId == 4){
           const newX = ((30*satellite_radius*2*Math.PI)/359)*Math.cos((n2 * Math.PI)/180)
           const newY = 0
@@ -120,10 +142,10 @@ function updateVectorsWithTime() {
           const rot1_newX = newX*Math.cos((55 * Math.PI)/180)-newY*Math.sin((55 * Math.PI)/180)
           const rot1_newY = newX*Math.sin((55 * Math.PI)/180)+newY*Math.cos((55 * Math.PI)/180)
           const rot1_newZ = newZ
-          xElem.textContent = rot1_newX.toFixed(6);
-          yElem.textContent = rot1_newY.toFixed(6);
-          zElem.textContent = rot1_newZ.toFixed(6);
-
+          xElem.textContent = rot1_newX.toFixed(6)+ ' km/h';
+          yElem.textContent = rot1_newY.toFixed(6)+ ' km/h';
+          zElem.textContent = rot1_newZ.toFixed(6)+ ' km/h';
+          return [rot1_newX, rot1_newY, rot1_newZ]
 
           //초록 궤도
         } else if(currentId == 5){
@@ -138,9 +160,11 @@ function updateVectorsWithTime() {
           const rot2_newX = rot1_newX*Math.cos((300 * Math.PI)/180)-rot1_newZ*Math.sin((300 * Math.PI)/180)
           const rot2_newY = rot1_newY
           const rot2_newZ = rot1_newX*Math.sin((300 * Math.PI)/180)+rot1_newZ*Math.cos((300 * Math.PI)/180)
-          xElem.textContent = rot2_newX.toFixed(6);
-          yElem.textContent = rot2_newY.toFixed(6);
-          zElem.textContent = rot2_newZ.toFixed(6);
+          xElem.textContent = rot2_newX.toFixed(6)+ ' km/h';
+          yElem.textContent = rot2_newY.toFixed(6)+ ' km/h';
+          zElem.textContent = rot2_newZ.toFixed(6)+ ' km/h';
+          return [rot2_newX, rot2_newY, rot2_newZ]
+
         } else if(currentId == 6){
           const newX = ((-30*satellite_radius*2*Math.PI)/359)*Math.cos((n2 * Math.PI)/180)
           const newY = 0
@@ -153,9 +177,11 @@ function updateVectorsWithTime() {
           const rot2_newX = rot1_newX*Math.cos((300 * Math.PI)/180)-rot1_newZ*Math.sin((300 * Math.PI)/180)
           const rot2_newY = rot1_newY
           const rot2_newZ = rot1_newX*Math.sin((300 * Math.PI)/180)+rot1_newZ*Math.cos((300 * Math.PI)/180)
-          xElem.textContent = rot2_newX.toFixed(6);
-          yElem.textContent = rot2_newY.toFixed(6);
-          zElem.textContent = rot2_newZ.toFixed(6);
+          xElem.textContent = rot2_newX.toFixed(6)+ ' km/h';
+          yElem.textContent = rot2_newY.toFixed(6)+ ' km/h';
+          zElem.textContent = rot2_newZ.toFixed(6)+ ' km/h';
+          return [rot2_newX, rot2_newY, rot2_newZ]
+          
         } else if(currentId == 7){
           const newX = ((30*satellite_radius*2*Math.PI)/359)*Math.cos((((90-n2)%360) * Math.PI)/180)
           const newY = 0
@@ -168,9 +194,11 @@ function updateVectorsWithTime() {
           const rot2_newX = rot1_newX*Math.cos((300 * Math.PI)/180)-rot1_newZ*Math.sin((300 * Math.PI)/180)
           const rot2_newY = rot1_newY
           const rot2_newZ = rot1_newX*Math.sin((300 * Math.PI)/180)+rot1_newZ*Math.cos((300 * Math.PI)/180)
-          xElem.textContent = rot2_newX.toFixed(6);
-          yElem.textContent = rot2_newY.toFixed(6);
-          zElem.textContent = rot2_newZ.toFixed(6);
+          xElem.textContent = rot2_newX.toFixed(6)+ ' km/h';
+          yElem.textContent = rot2_newY.toFixed(6)+ ' km/h';
+          zElem.textContent = rot2_newZ.toFixed(6)+ ' km/h';
+          return [rot2_newX, rot2_newY, rot2_newZ]
+
         } else if(currentId == 8){
           const newX = ((30*satellite_radius*2*Math.PI)/359)*Math.cos((n2 * Math.PI)/180)
           const newY = 0
@@ -183,9 +211,10 @@ function updateVectorsWithTime() {
           const rot2_newX = rot1_newX*Math.cos((300 * Math.PI)/180)-rot1_newZ*Math.sin((300 * Math.PI)/180)
           const rot2_newY = rot1_newY
           const rot2_newZ = rot1_newX*Math.sin((300 * Math.PI)/180)+rot1_newZ*Math.cos((300 * Math.PI)/180)
-          xElem.textContent = rot2_newX.toFixed(6);
-          yElem.textContent = rot2_newY.toFixed(6);
-          zElem.textContent = rot2_newZ.toFixed(6);
+          xElem.textContent = rot2_newX.toFixed(6)+ ' km/h';
+          yElem.textContent = rot2_newY.toFixed(6)+ ' km/h';
+          zElem.textContent = rot2_newZ.toFixed(6)+ ' km/h';
+          return [rot2_newX, rot2_newY, rot2_newZ]
 
 
           //파랑 궤도
@@ -201,9 +230,11 @@ function updateVectorsWithTime() {
           const rot2_newX = rot1_newX*Math.cos((60 * Math.PI)/180)-rot1_newZ*Math.sin((60 * Math.PI)/180)
           const rot2_newY = rot1_newY
           const rot2_newZ = rot1_newX*Math.sin((60 * Math.PI)/180)+rot1_newZ*Math.cos((60 * Math.PI)/180)
-          xElem.textContent = rot2_newX.toFixed(6);
-          yElem.textContent = rot2_newY.toFixed(6);
-          zElem.textContent = rot2_newZ.toFixed(6);
+          xElem.textContent = rot2_newX.toFixed(6)+ ' km/h';
+          yElem.textContent = rot2_newY.toFixed(6)+ ' km/h';
+          zElem.textContent = rot2_newZ.toFixed(6)+ ' km/h';
+          return [rot2_newX, rot2_newY, rot2_newZ]
+
         } else if(currentId == 10){
           const newX = ((-30*satellite_radius*2*Math.PI)/359)*Math.cos((n2 * Math.PI)/180)
           const newY = 0
@@ -216,9 +247,11 @@ function updateVectorsWithTime() {
           const rot2_newX = rot1_newX*Math.cos((60 * Math.PI)/180)-rot1_newZ*Math.sin((60 * Math.PI)/180)
           const rot2_newY = rot1_newY
           const rot2_newZ = rot1_newX*Math.sin((60 * Math.PI)/180)+rot1_newZ*Math.cos((60 * Math.PI)/180)
-          xElem.textContent = rot2_newX.toFixed(6);
-          yElem.textContent = rot2_newY.toFixed(6);
-          zElem.textContent = rot2_newZ.toFixed(6);
+          xElem.textContent = rot2_newX.toFixed(6)+ ' km/h';
+          yElem.textContent = rot2_newY.toFixed(6)+ ' km/h';
+          zElem.textContent = rot2_newZ.toFixed(6)+ ' km/h';
+          return [rot2_newX, rot2_newY, rot2_newZ]
+
         } else if(currentId == 11){
           const newX = ((30*satellite_radius*2*Math.PI)/359)*Math.cos((((90-n2)%360) * Math.PI)/180)
           const newY = 0
@@ -231,9 +264,11 @@ function updateVectorsWithTime() {
           const rot2_newX = rot1_newX*Math.cos((60 * Math.PI)/180)-rot1_newZ*Math.sin((60 * Math.PI)/180)
           const rot2_newY = rot1_newY
           const rot2_newZ = rot1_newX*Math.sin((60 * Math.PI)/180)+rot1_newZ*Math.cos((60 * Math.PI)/180)
-          xElem.textContent = rot2_newX.toFixed(6);
-          yElem.textContent = rot2_newY.toFixed(6);
-          zElem.textContent = rot2_newZ.toFixed(6);
+          xElem.textContent = rot2_newX.toFixed(6)+ ' km/h';
+          yElem.textContent = rot2_newY.toFixed(6)+ ' km/h';
+          zElem.textContent = rot2_newZ.toFixed(6)+ ' km/h';
+          return [rot2_newX, rot2_newY, rot2_newZ]
+
         } else if(currentId == 12){
           const newX = ((30*satellite_radius*2*Math.PI)/359)*Math.cos((n2 * Math.PI)/180)
           const newY = 0
@@ -246,9 +281,10 @@ function updateVectorsWithTime() {
           const rot2_newX = rot1_newX*Math.cos((60 * Math.PI)/180)-rot1_newZ*Math.sin((60 * Math.PI)/180)
           const rot2_newY = rot1_newY
           const rot2_newZ = rot1_newX*Math.sin((60 * Math.PI)/180)+rot1_newZ*Math.cos((60 * Math.PI)/180)
-          xElem.textContent = rot2_newX.toFixed(6);
-          yElem.textContent = rot2_newY.toFixed(6);
-          zElem.textContent = rot2_newZ.toFixed(6);
+          xElem.textContent = rot2_newX.toFixed(6)+ ' km/h';
+          yElem.textContent = rot2_newY.toFixed(6)+ ' km/h';
+          zElem.textContent = rot2_newZ.toFixed(6)+ ' km/h';
+          return [rot2_newX, rot2_newY, rot2_newZ]
 
 
           //노랑 궤도
@@ -260,9 +296,11 @@ function updateVectorsWithTime() {
           const rot1_newX = newX*Math.cos((305 * Math.PI)/180)-newY*Math.sin((305 * Math.PI)/180)
           const rot1_newY = newX*Math.sin((305 * Math.PI)/180)+newY*Math.cos((305 * Math.PI)/180)
           const rot1_newZ = newZ
-          xElem.textContent = rot1_newX.toFixed(6);
-          yElem.textContent = rot1_newY.toFixed(6);
-          zElem.textContent = rot1_newZ.toFixed(6);
+          xElem.textContent = rot1_newX.toFixed(6)+ ' km/h';
+          yElem.textContent = rot1_newY.toFixed(6)+ ' km/h';
+          zElem.textContent = rot1_newZ.toFixed(6)+ ' km/h';
+          return [rot1_newX, rot1_newY, rot1_newZ]
+
         } else if(currentId == 14){
           const newX = ((-30*satellite_radius*2*Math.PI)/359)*Math.cos((n2 * Math.PI)/180)
           const newY = 0
@@ -271,9 +309,11 @@ function updateVectorsWithTime() {
           const rot1_newX = newX*Math.cos((305 * Math.PI)/180)-newY*Math.sin((305 * Math.PI)/180)
           const rot1_newY = newX*Math.sin((305 * Math.PI)/180)+newY*Math.cos((305 * Math.PI)/180)
           const rot1_newZ = newZ
-          xElem.textContent = rot1_newX.toFixed(6);
-          yElem.textContent = rot1_newY.toFixed(6);
-          zElem.textContent = rot1_newZ.toFixed(6);
+          xElem.textContent = rot1_newX.toFixed(6)+ ' km/h';
+          yElem.textContent = rot1_newY.toFixed(6)+ ' km/h';
+          zElem.textContent = rot1_newZ.toFixed(6)+ ' km/h';
+          return [rot1_newX, rot1_newY, rot1_newZ]
+
         } else if(currentId == 15){
           const newX = ((30*satellite_radius*2*Math.PI)/359)*Math.cos((((90-n2)%360) * Math.PI)/180)
           const newY = 0
@@ -282,9 +322,11 @@ function updateVectorsWithTime() {
           const rot1_newX = newX*Math.cos((305 * Math.PI)/180)-newY*Math.sin((305 * Math.PI)/180)
           const rot1_newY = newX*Math.sin((305 * Math.PI)/180)+newY*Math.cos((305 * Math.PI)/180)
           const rot1_newZ = newZ
-          xElem.textContent = rot1_newX.toFixed(6);
-          yElem.textContent = rot1_newY.toFixed(6);
-          zElem.textContent = rot1_newZ.toFixed(6);
+          xElem.textContent = rot1_newX.toFixed(6)+ ' km/h';
+          yElem.textContent = rot1_newY.toFixed(6)+ ' km/h';
+          zElem.textContent = rot1_newZ.toFixed(6)+ ' km/h';
+          return [rot1_newX, rot1_newY, rot1_newZ]
+
         } else if(currentId == 16){
           const newX = ((30*satellite_radius*2*Math.PI)/359)*Math.cos((n2 * Math.PI)/180)
           const newY = 0
@@ -293,9 +335,10 @@ function updateVectorsWithTime() {
           const rot1_newX = newX*Math.cos((305 * Math.PI)/180)-newY*Math.sin((305 * Math.PI)/180)
           const rot1_newY = newX*Math.sin((305 * Math.PI)/180)+newY*Math.cos((305 * Math.PI)/180)
           const rot1_newZ = newZ
-          xElem.textContent = rot1_newX.toFixed(6);
-          yElem.textContent = rot1_newY.toFixed(6);
-          zElem.textContent = rot1_newZ.toFixed(6);
+          xElem.textContent = rot1_newX.toFixed(6)+ ' km/h';
+          yElem.textContent = rot1_newY.toFixed(6)+ ' km/h';
+          zElem.textContent = rot1_newZ.toFixed(6)+ ' km/h';
+          return [rot1_newX, rot1_newY, rot1_newZ]
           
 
           //핑크 궤도
@@ -311,9 +354,11 @@ function updateVectorsWithTime() {
           const rot2_newX = rot1_newX*Math.cos((300 * Math.PI)/180)-rot1_newZ*Math.sin((300 * Math.PI)/180)
           const rot2_newY = rot1_newY
           const rot2_newZ = rot1_newX*Math.sin((300 * Math.PI)/180)+rot1_newZ*Math.cos((300 * Math.PI)/180)
-          xElem.textContent = rot2_newX.toFixed(6);
-          yElem.textContent = rot2_newY.toFixed(6);
-          zElem.textContent = rot2_newZ.toFixed(6);
+          xElem.textContent = rot2_newX.toFixed(6)+ ' km/h';
+          yElem.textContent = rot2_newY.toFixed(6)+ ' km/h';
+          zElem.textContent = rot2_newZ.toFixed(6)+ ' km/h';
+          return [rot2_newX, rot2_newY, rot2_newZ]
+
         } else if(currentId == 18){
           const newX = ((-30*satellite_radius*2*Math.PI)/359)*Math.cos((n2 * Math.PI)/180)
           const newY = 0
@@ -326,9 +371,11 @@ function updateVectorsWithTime() {
           const rot2_newX = rot1_newX*Math.cos((300 * Math.PI)/180)-rot1_newZ*Math.sin((300 * Math.PI)/180)
           const rot2_newY = rot1_newY
           const rot2_newZ = rot1_newX*Math.sin((300 * Math.PI)/180)+rot1_newZ*Math.cos((300 * Math.PI)/180)
-          xElem.textContent = rot2_newX.toFixed(6);
-          yElem.textContent = rot2_newY.toFixed(6);
-          zElem.textContent = rot2_newZ.toFixed(6);
+          xElem.textContent = rot2_newX.toFixed(6)+ ' km/h';
+          yElem.textContent = rot2_newY.toFixed(6)+ ' km/h';
+          zElem.textContent = rot2_newZ.toFixed(6)+ ' km/h';
+          return [rot2_newX, rot2_newY, rot2_newZ]
+
         } else if(currentId == 19){
           const newX = ((30*satellite_radius*2*Math.PI)/359)*Math.cos((((90-n2)%360) * Math.PI)/180)
           const newY = 0
@@ -341,9 +388,11 @@ function updateVectorsWithTime() {
           const rot2_newX = rot1_newX*Math.cos((300 * Math.PI)/180)-rot1_newZ*Math.sin((300 * Math.PI)/180)
           const rot2_newY = rot1_newY
           const rot2_newZ = rot1_newX*Math.sin((300 * Math.PI)/180)+rot1_newZ*Math.cos((300 * Math.PI)/180)
-          xElem.textContent = rot2_newX.toFixed(6);
-          yElem.textContent = rot2_newY.toFixed(6);
-          zElem.textContent = rot2_newZ.toFixed(6);
+          xElem.textContent = rot2_newX.toFixed(6)+ ' km/h';
+          yElem.textContent = rot2_newY.toFixed(6)+ ' km/h';
+          zElem.textContent = rot2_newZ.toFixed(6)+ ' km/h';
+          return [rot2_newX, rot2_newY, rot2_newZ]
+
         } else if(currentId == 20){
           const newX = ((30*satellite_radius*2*Math.PI)/359)*Math.cos((n2 * Math.PI)/180)
           const newY = 0
@@ -356,9 +405,10 @@ function updateVectorsWithTime() {
           const rot2_newX = rot1_newX*Math.cos((300 * Math.PI)/180)-rot1_newZ*Math.sin((300 * Math.PI)/180)
           const rot2_newY = rot1_newY
           const rot2_newZ = rot1_newX*Math.sin((300 * Math.PI)/180)+rot1_newZ*Math.cos((300 * Math.PI)/180)
-          xElem.textContent = rot2_newX.toFixed(6);
-          yElem.textContent = rot2_newY.toFixed(6);
-          zElem.textContent = rot2_newZ.toFixed(6);
+          xElem.textContent = rot2_newX.toFixed(6)+ ' km/h';
+          yElem.textContent = rot2_newY.toFixed(6)+ ' km/h';
+          zElem.textContent = rot2_newZ.toFixed(6)+ ' km/h';
+          return [rot2_newX, rot2_newY, rot2_newZ]
 
 
           //하늘 궤도
@@ -374,9 +424,11 @@ function updateVectorsWithTime() {
           const rot2_newX = rot1_newX*Math.cos((60 * Math.PI)/180)-rot1_newZ*Math.sin((60 * Math.PI)/180)
           const rot2_newY = rot1_newY
           const rot2_newZ = rot1_newX*Math.sin((60 * Math.PI)/180)+rot1_newZ*Math.cos((60 * Math.PI)/180)
-          xElem.textContent = rot2_newX.toFixed(6);
-          yElem.textContent = rot2_newY.toFixed(6);
-          zElem.textContent = rot2_newZ.toFixed(6);
+          xElem.textContent = rot2_newX.toFixed(6)+ ' km/h';
+          yElem.textContent = rot2_newY.toFixed(6)+ ' km/h';
+          zElem.textContent = rot2_newZ.toFixed(6)+ ' km/h';
+          return [rot2_newX, rot2_newY, rot2_newZ]
+
         } else if(currentId == 22){
           const newX = ((-30*satellite_radius*2*Math.PI)/359)*Math.cos((n2 * Math.PI)/180)
           const newY = 0
@@ -389,9 +441,11 @@ function updateVectorsWithTime() {
           const rot2_newX = rot1_newX*Math.cos((60 * Math.PI)/180)-rot1_newZ*Math.sin((60 * Math.PI)/180)
           const rot2_newY = rot1_newY
           const rot2_newZ = rot1_newX*Math.sin((60 * Math.PI)/180)+rot1_newZ*Math.cos((60 * Math.PI)/180)
-          xElem.textContent = rot2_newX.toFixed(6);
-          yElem.textContent = rot2_newY.toFixed(6);
-          zElem.textContent = rot2_newZ.toFixed(6);
+          xElem.textContent = rot2_newX.toFixed(6)+ ' km/h';
+          yElem.textContent = rot2_newY.toFixed(6)+ ' km/h';
+          zElem.textContent = rot2_newZ.toFixed(6)+ ' km/h';
+          return [rot2_newX, rot2_newY, rot2_newZ]
+          
         } else if(currentId == 23){
           const newX = ((30*satellite_radius*2*Math.PI)/359)*Math.cos((((90-n2)%360) * Math.PI)/180)
           const newY = 0
@@ -404,9 +458,11 @@ function updateVectorsWithTime() {
           const rot2_newX = rot1_newX*Math.cos((60 * Math.PI)/180)-rot1_newZ*Math.sin((60 * Math.PI)/180)
           const rot2_newY = rot1_newY
           const rot2_newZ = rot1_newX*Math.sin((60 * Math.PI)/180)+rot1_newZ*Math.cos((60 * Math.PI)/180)
-          xElem.textContent = rot2_newX.toFixed(6);
-          yElem.textContent = rot2_newY.toFixed(6);
-          zElem.textContent = rot2_newZ.toFixed(6);
+          xElem.textContent = rot2_newX.toFixed(6)+ ' km/h';
+          yElem.textContent = rot2_newY.toFixed(6)+ ' km/h';
+          zElem.textContent = rot2_newZ.toFixed(6)+ ' km/h';
+          return [rot2_newX, rot2_newY, rot2_newZ]
+          
         } else if(currentId == 24){
           const newX = ((30*satellite_radius*2*Math.PI)/359)*Math.cos((n2 * Math.PI)/180)
           const newY = 0
@@ -419,9 +475,10 @@ function updateVectorsWithTime() {
           const rot2_newX = rot1_newX*Math.cos((60 * Math.PI)/180)-rot1_newZ*Math.sin((60 * Math.PI)/180)
           const rot2_newY = rot1_newY
           const rot2_newZ = rot1_newX*Math.sin((60 * Math.PI)/180)+rot1_newZ*Math.cos((60 * Math.PI)/180)
-          xElem.textContent = rot2_newX.toFixed(6);
-          yElem.textContent = rot2_newY.toFixed(6);
-          zElem.textContent = rot2_newZ.toFixed(6);
+          xElem.textContent = rot2_newX.toFixed(6)+ ' km/h';
+          yElem.textContent = rot2_newY.toFixed(6)+ ' km/h';
+          zElem.textContent = rot2_newZ.toFixed(6)+ ' km/h';
+          return [rot2_newX, rot2_newY, rot2_newZ]
         }
       }
     }
@@ -429,4 +486,5 @@ function updateVectorsWithTime() {
 }
 
 // 1초마다 업데이트 실행
-setInterval(updateVectorsWithTime, 10);
+setInterval(updateEarthVectors, 10);
+setInterval(updateSetelliteVectors, 10);

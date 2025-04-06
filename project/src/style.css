@@ -255,6 +255,10 @@ body {
   gap: 0.625rem;
 }
 
+.info-grid2 {
+  gap: 0.625rem;
+}
+
 .info-label {
   font-size: 0.875rem;
   color: var(--color-muted);
@@ -264,6 +268,12 @@ body {
   font-size: 0.875rem;
   font-weight: 500;
   text-align: right;
+}
+
+.info-value2 {
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-align: left;
 }
 
 /* Scrollbar Styling */
