@@ -1,6 +1,5 @@
 // vector.js
 // 위도, 경도, 위성 ID 값을 실시간으로 변수에 저장하면서 벡터 UI를 업데이트하는 모듈
-
 export let currentLat = 0;
 export let currentLon = 0;
 export let currentSatelliteId = null;
@@ -11,7 +10,8 @@ export function resetSatelliteId() {
   console.log("위성 ID가 리셋되었습니다.");
 }
 
-
+export let x_seta = 0;
+export let height = 0;
 
 // 화면에서 시간을 가져와 초 단위로 변환하는 함수
 function getSimulationTimeInSeconds() {
@@ -54,7 +54,7 @@ export function updateEarthVectors() {
       const b = 6356.139
       const seta = currentLat
       const n = ((totalSeconds/86160)*360) % 360
-      const x_seta = Math.sqrt((a**2*b**2)/(b**2+a**2*Math.tan((Math.abs(seta) * Math.PI) / 180)))
+      x_seta = Math.sqrt(((a**2)*(b**2))/(b**2+a**2*(Math.tan((Math.abs(seta) * Math.PI) / 180))**2))
       const newX = ((30*x_seta*Math.PI)/359)*Math.cos((n * Math.PI) / 180)
       const newY = 0
       const newZ = ((-30*x_seta*Math.PI)/359)*Math.sin((n * Math.PI) / 180)
@@ -62,9 +62,9 @@ export function updateEarthVectors() {
       xElem.textContent = newX.toFixed(6) + ' km/h';
       yElem.textContent = newY.toFixed(6) + ' km/h';
       zElem.textContent = newZ.toFixed(6) + ' km/h';
-
+      height = x_seta/Math.cos((Math.abs(seta) * Math.PI)/ 180);
+      console.log(x_seta);
       return [newX,newY,newZ]
-      
     }
 
   }
@@ -79,7 +79,7 @@ export function updateSetelliteVectors() {
     const yElem = document.getElementById("satellite-vector-y");
     const zElem = document.getElementById("satellite-vector-z");
     const n2 = ((totalSeconds/43080)*360) % 360
-    const satellite_radius = 20200+6400; //지구 반지름 6400으로 임의 설정 한 것 이므로 나중에 수정할것
+    const satellite_radius = 20200+6371.0088; //지구 반지름 6400으로 임의 설정 한 것 이므로 나중에 수정할것
     if (xElem && yElem && zElem) {
       if (currentSatelliteId === "없음") {
         xElem.textContent = "None";

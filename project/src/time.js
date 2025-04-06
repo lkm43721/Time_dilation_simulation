@@ -4,7 +4,7 @@ import { resetSatelliteId } from "./vector.js";
 
 let TD = document.getElementById("special-time-dilation");
 let setId = document.getElementById("satellite-id");
-let setId1 = setId;
+let setIdSave = setId;
 export let TimeSumDilation = 0;
 
 const resetButton = document.getElementById("reset-button");
@@ -12,11 +12,11 @@ resetButton.addEventListener("click", () => {
   const satelliteIdElem = document.getElementById("satellite-id");
   satelliteIdElem.textContent = "없음";  // DOM 업데이트
   setId = satelliteIdElem;
-  setId1 = satelliteIdElem;
+  setIdSave = satelliteIdElem;
   
   resetSatelliteId();
   
-  TD.textContent = '0.00000000000';
+  TD.textContent = '0.000000000000';
     // location.reload();
 });
 
@@ -24,9 +24,9 @@ resetButton.addEventListener("click", () => {
 
 function specialTime() {
 
-    if(setId!=setId1) {
+    if(setId!=setIdSave) {
         TimeSumDilation = 0;
-        setId1 = setId;
+        setIdSave = setId;
     } else;
 
     setId = document.getElementById("satellite-id").textContent;
@@ -54,7 +54,7 @@ function specialTime() {
         // console.log(timeDilation);
     } 
     else{
-        console.log(0);
+        
     }
 }
 
