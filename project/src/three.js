@@ -140,7 +140,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // 시간 및 속도 설정
   const EARTH_ROTATION_PERIOD = 23 * 60 * 60 + 56 * 60;
   const SATELLITE_ORBIT_PERIOD = EARTH_ROTATION_PERIOD / 2;
-  let speedMultiplier = 1000;
+  let speedMultiplier = 1;
   const MIN_SPEED = 1;
   const MAX_SPEED = 20000;
   let simulationSeconds = 0;
@@ -245,7 +245,7 @@ document.addEventListener("DOMContentLoaded", () => {
     return Math.round(((Math.log10(speed) - minLog) / scale) + 1);
   }
 
-  speedSlider.value = mapSpeedToSlider(1000);
+  speedSlider.value = mapSpeedToSlider(1);
   speedValue.textContent = `${speedMultiplier}x`;
 
   speedSlider.addEventListener("input", () => {
