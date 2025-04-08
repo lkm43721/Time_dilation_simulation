@@ -63,7 +63,6 @@ export function updateEarthVectors() {
       yElem.textContent = newY.toFixed(6) + ' km/h';
       zElem.textContent = newZ.toFixed(6) + ' km/h';
       height = x_seta/Math.cos((Math.abs(seta) * Math.PI)/ 180);
-      console.log(x_seta);
       return [newX,newY,newZ]
     }
 
