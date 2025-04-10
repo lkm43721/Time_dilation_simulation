@@ -1,5 +1,6 @@
 // 지구와 GPS 위성 시뮬레이션을 위한 기본적인 상호작용
 
+
 document.addEventListener("DOMContentLoaded", () => {
   // 탭 전환 기능
   const tabButtons = document.querySelectorAll(".tab-button")
